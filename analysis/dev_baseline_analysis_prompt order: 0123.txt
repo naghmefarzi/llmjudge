@@ -1,0 +1,4 @@
+Interannotation Agreement:
+Total agreements: 7207
+Cohen's Kappa: 0.05465695054364095
+

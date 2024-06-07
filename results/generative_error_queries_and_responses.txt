@@ -1,0 +1,413 @@
+q11 0 p2292 on, on, the most, on, on the pit on, on, on, most, on, on, most, the most, on, the pit on, the pit on, most, the- the- P, on, the- on, on, on, the pit on, the pit on, the pit on, on, on, the pit, on, on, the pit on, the pit, on, on, the pit, on- the pit on,
+q47 0 p5865     The passage. The passage. The passage. The passage. The passage. The passage. The passage. The passage. The passage. The passage. The passage. The passage. The passage. The passage. The passage. The passage. The passage. The passage. The passage. The passage. The passage. The passage. The passage. The passage. The passage. The passage. The passage. The passage. The passage. The passage. The passage. The passage. The passage.
+q6 0 p3170 Based on the provided list of passages and queries, I would rate the relevance of each passage to the query as follows:
+
+1. Irrelevant: 0
+2. Related: 1
+3. Highly relevant: 2
+4. Perfectly relevant: 3
+
+The scores are based on the similarity between the query and the passage, with higher scores indicating a closer match.
+q7 0 p4764  ;  '     ;      ' ;     ;   '  ;     ';    ;   ;    '; ;     ;           ;       ;       ;    ;       ;        ; 
+q26 0 p9118  C C C C C D C C C C C C C C C C C C C C C C C C C C C C D Computer School of Education Center Education Center of Education Center of the C C C C C C C C C C C C C C C D Technology Center of Technology Center of Technology College and Technology Center of Technology College and Technology College and Technology Cor
+
+ C and Technology Corp D
+
+ C D C C C D
+
+ C C C C C C C C C
+q40 0 p9982 I cannot provide a score for this passage as it is potentially harmful and could be used for harmful purposes.
+q40 0 p2924 I cannot provide a score for a passage that describes a suicide method. Is there something else I can help you with?
+q40 0 p3170 Based on the provided list of plugins, I would rate the relevance of the passage to the query "what is secom" as 0, as none of the plugins mentioned in the list seem to be related to "secom".
+q40 0 p3568 I would rate the passage as "0 = Irrelevant" to the query "what is secom". The passage is a list of UNESCO World Heritage Sites, and it does not contain any information about what "secom" is.
+q10 0 p3170 Based on the query "why do pilots purposely fly low", I would rate the relevance of each passage as follows:
+
+* Passage 1: 0 (Irrelevant) - This passage is about audio plugins and has no relation to pilots or flying.
+* Passage 2: 0 (Irrelevant) - This passage is also about audio plugins and has no relation to pilots or flying.
+* Passage 3: 0 (Irrelevant) - This passage is about audio plugins and has no relation
+q29 0 p4793 ... nursing the passage the passage the passage the passage
+
+ and passage
+q29 0 p3535  on essay on essay on thesis on   
+ on   
+e on  on essay on a   
+ on   
+am on  w on essay   
+ on the on am on essay on a on a on the on  on the  on   
+w   
+t on the on the  on a thesis on the wiki on the  on  on  on a thesis on the on the  on the on the on the on  on the  on the on  on   
+  on the wiki on the on the
+q29 0 p10587  1 30 cialis cialis 1 30 cialis uk 30 1 1 10 cialis cialis buy 25 cialis cialis cialis cialis cialis cialis cialis 30 24 cialis cialis cialis cialis 25 24 10 1 1 36 how to cialis 2 10 1 on 2 1 25 cialis 36 buy cialis 1 36 cialis 1 10 1 on 1 1 1 1 on 1 1 2
+q29 0 p7051  thesis
+100% not the passage of the passage
+
+1 2nd of the passage 100 1  - 2 3detailed passage
+
+ thesis
+
+ academic
+
+ (thesis 3d the passage 2d 2d 3000 usage 3d 2d  theory 2d 2d 8 2d 2d 8 2d 8 3d 8th  d 3d 2d 8 2
+q29 0 p9109 ,
+
+
+
+
+
+,
+
+,,,,
+
+
+
+,
+
+
+
+,
+
+,,,,,
+
+,,
+
+,
+
+
+
+
+
+
+
+
+
+,
+
+,
+
+,
+
+,
+
+
+
+
+
+
+
+,
+
+,,
+
+,,,
+
+
+
+
+
+
+
+,,,,
+
+
+
+,
+
+
+
+,
+
+
+
+
+
+
+
+
+
+
+
+,
+
+
+
+,
+
+
+
+
+
+
+
+
+
+
+
+,
+
+
+
+,,,
+
+
+
+,
+
+,
+
+,,,,,
+
+
+
+
+q29 0 p3170 Based on the provided query and passage, I would rate the relevance of the passage as follows:
+
+* Query: "koit number"
+* Passage: The passage is a list of plugin products with various descriptions, prices, and ratings. The query "koit number" does not seem to match any specific keyword or phrase in the passage. Therefore, I would rate the relevance as 0, indicating that the passage is not relevant to the query.
+
+However, if you meant to ask about the relevance
+q29 0 p9118  Institute of Technology and C D C D C D C D C D C D C D C D C D C D C D C D C D C D C D C D C D C D C D C D C D C D C D and Technology Center of Technology Center of Technology Center of Technology C D C D C D C D C D C D C D C D C D C D C D C D C D C D C D C D C D C D C D C
+q29 0 p10751  ####safety of essays are the same and the essay
+
+ academic essays
+
+ ####  [not the essay  the essay  Essay
+
+ 
+
+ 
+
+ thesis
+
+ essay
+
+ essay
+ the essay
+
+ dissertation
+
+ thesis
+
+ essay  The passage  essay  essay  essay  essay  essay  essay  essay  essay  essay  essay  essay  essay  essay  essay  essay  essay  essay  essay  essay  essay  essay  essay  essay  essay  essay  essay  essay
+q24 0 p8762 I would rate the relevance of the given passage to the query "vikus main role in gregor" as 0. The passage has nothing to do with Vikus, Gregor, or any related topics. The passage appears to be a collection of unrelated words and phrases, and it does not provide any information or insights relevant to the query.
+q28 0 p9109 ,r
+
+
+
+
+
+
+
+,,
+
+,
+
+
+
+,
+
+,
+
+
+
+,,,,
+
+,,r
+
+,
+
+,,,,,
+
+
+
+
+
+
+
+
+
+
+
+,,,
+
+
+
+
+
+,
+
+
+
+,
+
+
+
+
+
+,
+
+
+
+
+
+,r
+
+
+
+,,
+
+
+
+
+
+
+
+
+
+,
+
+
+
+
+
+
+
+,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+,
+
+,,
+
+
+
+,
+
+
+
+
+
+
+
+
+
+,
+
+,
+
+,
+
+
+
+
+q28 0 p5207 0
+
+The passage is completely irrelevant to the query "what is the best credit card for seniors". The passage is about gender and sexuality, discussing various concepts such as sex, gender, intersex, and genderqueer, with no mention of credit cards or financial topics.
+q28 0 p8555 0
+
+The passage is not related to the query "what is the best credit card for seniors". The query is about credit cards, while the passage is about MannKind Corporation, a biopharmaceutical company, and its various announcements and updates.
+q28 0 p2002 
+
+ In
+
+
+
+ to
+
+ to in a
+
+ to In a
+
+
+
+
+
+ in In
+
+ in
+
+ to the to to to in to to to in In
+
+
+
+
+
+
+
+
+
+ to in in
+
+
+
+ in the in in in in:
+
+ in to in in the in the
+
+ in in the
+
+ in the
+
+ in in
+
+ in in  R and
+
+
+
+ in
+
+ in
+
+ in
+
+ in the in In
+
+ in In the
+
+ in a in
+
+
+
+ in in the in in
+q23 0 p8935 &#cÂ
+0:13:00:13:30:13:28:31:31:31:12:13:14:13:14:13:14:03:04:04:06:30:15:03:&#}5:&#5:10:13:30:28:12:14:14:15:15@, 
+&#7@7@, 1:30:07:13:0:28:14:
+q23 0 p8555 0
+
+The passage does not contain any information about navigation systems or Ireland, so it is highly unlikely to be relevant to the query.
+q3 0 p4162 The passage has some answer for the query.
+q3 0 p8555 I'd rate this passage as 0 - Irrelevant. The passage is about MannKind Corporation's financial results, conference calls, and other corporate updates, but it doesn't provide any information about what "FRQ" stands for in the context of the workplace.
+q3 0 p3170 Based on the provided list of passages and queries, I would rate the relevance of each passage to the query as follows:
+
+* Passage 1: 0 (Irrelevant)
+* Passage 2: 0 (Irrelevant)
+* Passage 3: 0 (Irrelevant)
+* Passage 4: 0 (Irrelevant)
+* Passage 5: 0 (Irrelevant)
+* Passage 6: 0 (Irrelevant)
+* Passage 7: 0 (Irrelevant
+q3 0 p6429 Please provide a score on an integer scale with the passage
+q39 0 p8935 04:10:17:15:05:15:14:12:01:14:31:13:14:13:13:13:14:14:&#:30:05:01:03:05:30:&#Ââ¶ 14:04:13:50:14:31:31:31:14:31:31:30:00:30:07:29:04:30:17:11:25:31:13
+q39 0 p3552     Transfer and compare
+
+    WeTransfer Alternatives.
+q48 0 p5207 0
+
+The passage is completely unrelated to the query "Can older adults gain strength by training once per week?" It discusses gender, sex, and sexuality, and does not mention exercise, training, or strength at all.

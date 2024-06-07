@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
+import argparse
 import os
 import gc
 import jsonlines
@@ -12,84 +13,74 @@ from typing import Tuple, List, Dict, Callable, NewType, Optional, Iterable
 from huggingface_hub import login
 from transformers import (AutoTokenizer,AutoModelForCausalLM,
                           TextStreamer,pipeline,BitsAndBytesConfig)
+import sys
+sys.path.append('.')
+from data_processing import load_data_files, clean_files
+from prompts import create_system_message
+
 
 if torch.cuda.is_available():
     device = torch.device("cuda")
 else:
     device = torch.device("cpu")
-print("device: {d}".format(d = device))
-import os
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
+print("device: {d}".format(d = device))
+
+
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
+
+
+## Constants
 MAX_LENGTH = 8000
-problamatic_passages_path = "./passages_length_exceed.txt"
+system_message = """You are a search quality rater evaluating the relevance of passages. Given a query and passage, you must provide a score on an integer scale of 0 to 3 with the following meanings:
 
+3 = Perfectly relevant: The passage is dedicated to the query and contains the exact answer.
+2 = Highly relevant: The passage has some answer for the query, but the answer may be a bit unclear, or hidden amongst extraneous information.
+1 = Related: The passage seems related to the query but does not answer it.
+0 = Irrelevant: The passage has nothing to do with the query
 
-# Authenticate using the token
-from huggingface_hub import login
-
-def get_all_docid_to_doc(docs_path: str = './data/llm4eval_document_2024.jsonl'):
-    docid_to_doc = dict()
-    with jsonlines.open(docs_path, 'r') as document_file:
-        for obj in document_file:
-            docid_to_doc[obj['docid']] = obj['doc']
-    return docid_to_doc
-
-def get_all_query_id_to_query(query_path:str):
-    query_data = pd.read_csv(query_path, sep="\t", header=None, names=['qid', 'qtext'])
-    qid_to_query = dict(zip(query_data.qid, query_data.qtext))
-    return qid_to_query
-
-def load_documents_in_chunks(docs_path, chunk_size=100):
-    docid_to_doc = {}
-    with jsonlines.open(docs_path, 'r') as document_file:
-        for obj in document_file:
-            docid = obj['docid']
-            docid_to_doc[docid] = obj['doc']
-            if len(docid_to_doc) >= chunk_size:
-                yield docid_to_doc
-                docid_to_doc = {}
-        if docid_to_doc:  # Yield the remaining documents if any
-            yield docid_to_doc
-
-
-
-def get_model_q(name_or_path_to_model: str):
-
-
-    tokenizer = AutoTokenizer.from_pretrained(name_or_path_to_model)
-    bnb_config = BitsAndBytesConfig(
-                load_in_4bit=True,
-                bnb_4bit_use_double_quant=True,
-                bnb_4bit_quant_type="nf4",
-                bnb_4bit_compute_dtype=torch.float16,
-            )
-    model = AutoModelForCausalLM.from_pretrained(
-        name_or_path_to_model,
-        #torch_dtype=torch.bfloat16,
-        quantization_config = bnb_config,
-        device_map="auto",
-    )
-    return model,tokenizer
+Assume that you are writing an answer to the query. If the passage seems to be related to the query but does not include any answer to the query, mark it 1. If you would use any of the information contained in the passage in such an asnwer, mark it 2. If the passage is primarily about the query, or contains vital information about the topic, mark it 3. Otherwise, mark it 0."""
 
 
 
 
-def truncate_prompt_based_on_passage(prompt:str,pipeline):
+def get_prompt(query, passage,pipeline):
+
+    prompt = f"""Please rate how the given passage is relevant to the query. The output must be only a score that indicate how relevant they are.
+
+    Query: {query}
+    Passage: {passage}
+
+    Score:"""
+    return prompt
+    # return truncate_prompt_based_on_passage(prompt, pipeline, MAX_LENGTH)
+
+   
+
+
+def truncate_prompt_based_on_passage(prompt:str,pipeline, max_length: int) -> str:
     # Truncate passage part of the prompt
-    prompt_tokens = pipeline.tokenizer.tokenize(prompt)
-    passage_start_index = prompt.find("Passage:")
+    """Truncate passage in the prompt if it exceeds the maximum token length."""
+    tokens = pipeline.tokenizer.tokenize(prompt)
+    if len(tokens) <= max_length:
+        return prompt
+
+    passage_start_index = prompt.find("Passage:") + len("Passage:")
     passage_end_index = prompt.find("Score:")
-    passage = prompt[passage_start_index:passage_end_index]
-    
-    passage_tokens = pipeline.tokenizer.tokenize(passage)
-    limit = MAX_LENGTH-(prompt_tokens-passage_tokens)
-    passage_tokens = passage_tokens[:limit]
-        
-    truncated_passage = pipeline.tokenizer.decode(passage_tokens)
-    print(f"truncated_passage: {truncated_passage}")
-    return truncated_passage
+    truncated_passage = prompt[passage_start_index:passage_end_index]
+
+    passage_tokens = pipeline.tokenizer.tokenize(truncated_passage)
+    prompt_tokens = pipeline.tokenizer.tokenize(prompt[:passage_start_index]) + pipeline.tokenizer.tokenize(prompt[passage_end_index:])
+    available_length = max_length - len(prompt_tokens)
+
+    truncated_passage_tokens = passage_tokens[:available_length]
+    print("here")
+    print(truncated_passage_tokens)
+    truncated_passage = pipeline.tokenizer.decode(truncated_passage_tokens[1])
+    print(f"{prompt[:passage_start_index]} {truncated_passage} {prompt[passage_end_index:]}")
+    return f"{prompt[:passage_start_index]} {truncated_passage} {prompt[passage_end_index:]}"
+
 
 
 
@@ -105,11 +96,18 @@ def get_model_baseline(name_or_path_to_model : str):
     )
     return pipeline
 
-def get_relevance_score_baseline(prompt,pipeline):
+def get_relevance_score_baseline(prompt: str,pipeline,system_message:str):
   messages = [
       {"role": "system", "content": system_message},
       {"role": "user", "content": prompt},
   ]
+  
+  
+  # Check if the function has been called before
+  if not hasattr(get_relevance_score_baseline, "called"):
+  # Set the attribute to indicate the function has been called
+    get_relevance_score_baseline.called = True
+    print(messages)
 
   prompt = pipeline.tokenizer.apply_chat_template(
           messages,
@@ -134,41 +132,75 @@ def get_relevance_score_baseline(prompt,pipeline):
 
   return outputs[0]["generated_text"][len(prompt):]
 
-def get_prompt(query, passage,pipeline):
 
-    prompt = f"""Please rate how the given passage is relevant to the query. The output must be only a score that indicate how relevant they are.
+def process_test_qrel_baseline(test_qrel, docid_to_doc, qid_to_query, result_path, pipeline,chunk_size ,generative_error_file_path: Optional[str],problematic_passages_path: Optional[str],system_message:str):
+    # Open file to write results
+    with open(result_path, 'w') as result_file:
+        for start_idx in tqdm(range(0, len(test_qrel), chunk_size)):
+            # print(start_idx)
+            batch = test_qrel.iloc[start_idx:start_idx + chunk_size]
+            
+            process_batch_baseline(batch, qid_to_query, docid_to_doc,  result_file, pipeline,generative_error_file_path,problematic_passages_path, system_message)
+                
+            torch.cuda.empty_cache()  # Clear GPU cache if using GPU  
+            del batch
 
-    Query: {query}
-    Passage: {passage}
 
-    Score:"""
-    # Tokenize prompt using Llama tokenizer
-    # tokens = pipeline.tokenizer.tokenize(prompt)
-    
-    # # Check if prompt exceeds maximum sequence length token
-    # if len(tokens) > MAX_LENGTH:
-    #     passage = truncate_prompt_based_on_passage(prompt,pipeline,MAX_LENGTH)
-    #     prompt = f"""Please rate how the given passage is relevant to the query. The output must be only a score that indicate how relevant they are.
 
-    #     Query: {query}
-    #     Passage: {passage}
+def process_batch_baseline(batch, qid_to_query, docid_to_doc,  result_file, pipeline,generative_error_file_path:Optional[str], problematic_passages_path: Optional[str], system_message: str):
 
-    #     Score:"""
-    return prompt
 
-    
-# Define chunk size
-system_message = """You are a search quality rater evaluating the relevance of passages. Given a query and passage, you must provide a score on an integer scale of 0 to 3 with the following meanings:
+    for eachline in batch.itertuples(index=True):
+        try:
+            qidx = eachline.qid
+            docidx = eachline.docid
+            prompt = get_prompt(query=qid_to_query[qidx], passage=docid_to_doc[docidx],pipeline=pipeline)
+            # print(prompt)
+            response_text = get_relevance_score_baseline(prompt,pipeline,system_message)
+            try:
+                response_text_int = int(response_text)
+                if response_text_int in [0,1,2,3,"0","1","2","3"]:
+                    result_file.write(f"{qidx} 0 {docidx} {response_text}\n")
+                else:
+                    if generative_error_file_path:
+                        with open(generative_error_file_path,"a") as errors_file:
+                            errors_file.write(f"{qidx} 0 {docidx} {response_text}\n")
+                    
+            except:
+                if generative_error_file_path:
+                    with open(generative_error_file_path,"a") as errors_file:
+                        errors_file.write(f"{qidx} 0 {docidx} {response_text}\n")
+        
+        except Exception as e:
+            if problematic_passages_path:
+                    with open(problematic_passages_path,"a") as p:
+                        p.write(f"Error processing QID {qidx}, DOCID {docidx}: {e}\n")
+                        # print(f"Error processing QID {qidx}, DOCID {docidx}: {e}")
+        
+        torch.cuda.empty_cache()  # Clear GPU cache if using GPU
 
-3 = Perfectly relevant: The passage is dedicated to the query and contains the exact answer.
-2 = Highly relevant: The passage has some answer for the query, but the answer may be a bit unclear, or hidden amongst extraneous information.
-1 = Related: The passage seems related to the query but does not answer it.
-0 = Irrelevant: The passage has nothing to do with the query
 
-Assume that you are writing an answer to the query. If the passage seems to be related to the query but does not include any answer to the query, mark it 1. If you would use any of the information contained in the passage in such an asnwer, mark it 2. If the passage is primarily about the query, or contains vital information about the topic, mark it 3. Otherwise, mark it 0."""
+ 
+def get_model_quantized(name_or_path_to_model: str) -> Tuple:
 
-def process_batch_q(batch, qid_to_query, docid_to_doc,  result_file, model, tokenizer):
 
+    tokenizer = AutoTokenizer.from_pretrained(name_or_path_to_model)
+    bnb_config = BitsAndBytesConfig(
+                load_in_4bit=True,
+                bnb_4bit_use_double_quant=True,
+                bnb_4bit_quant_type="nf4",
+                bnb_4bit_compute_dtype=torch.float16,
+            )
+    model = AutoModelForCausalLM.from_pretrained(
+        name_or_path_to_model,
+        #torch_dtype=torch.bfloat16,
+        quantization_config = bnb_config,
+        device_map="auto",
+    )
+    return model,tokenizer
+
+
+def process_batch_quantized(batch, qid_to_query, docid_to_doc,  result_file, model, tokenizer,problematic_passages_path: Optional[str]):
 
     for eachline in batch.itertuples(index=True):
         try:
@@ -209,78 +241,62 @@ def process_batch_q(batch, qid_to_query, docid_to_doc,  result_file, model, toke
         except Exception as e:
             err = f"Error processing QID {qidx}, DOCID {docidx}: {e}\n"
             # print(err)
-            with open(problamatic_passages_path,"a") as f:
-                f.write(err)
+            if problematic_passages_path:
+                with open(problematic_passages_path,"a") as f:
+                    f.write(err)
         
         torch.cuda.empty_cache()  # Clear GPU cache if using GPU
 
   
     
-def process_test_qrel_q(test_qrel, docid_to_doc, qid_to_query, result_path, model, tokenizer,chunk_size = 100):
+def process_test_qrel_quantized(test_qrel, docid_to_doc, qid_to_query, result_path, model, tokenizer,chunk_size = 100):
     # Open file to write results
     with open(result_path, 'w') as result_file:
         for start_idx in tqdm(range(0, len(test_qrel), chunk_size)):
             # print(start_idx)
             batch = test_qrel.iloc[start_idx:start_idx + chunk_size]
-            process_batch_q(batch, qid_to_query, docid_to_doc,  result_file, model, tokenizer)
+            process_batch_quantized(batch, qid_to_query, docid_to_doc,  result_file, model, tokenizer)
             torch.cuda.empty_cache()  # Clear GPU cache if using GPU  
             del batch
             
-def process_test_qrel_baseline(test_qrel, docid_to_doc, qid_to_query, result_path, pipeline,chunk_size = 100,errors_file_path="./errors.txt",):
-    # Open file to write results
-    with open(result_path, 'w') as result_file, open(errors_file_path,'w') as errors_file:
-        for start_idx in tqdm(range(0, len(test_qrel), chunk_size)):
-            # print(start_idx)
-            batch = test_qrel.iloc[start_idx:start_idx + chunk_size]
-            process_batch_baseline(batch, qid_to_query, docid_to_doc,  result_file, pipeline,errors_file)
-            torch.cuda.empty_cache()  # Clear GPU cache if using GPU  
-            del batch
 
 
-
-def process_batch_baseline(batch, qid_to_query, docid_to_doc,  result_file, pipeline,errors_file):
-
-
-    for eachline in batch.itertuples(index=True):
-        try:
-            qidx = eachline.qid
-            docidx = eachline.docid
-            prompt = get_prompt(query=qid_to_query[qidx], passage=docid_to_doc[docidx],pipeline=pipeline)
-            response_text = get_relevance_score_baseline(prompt,pipeline)
-            try:
-                response_text_int = int(response_text)
-                result_file.write(f"{qidx} 0 {docidx} {response_text}\n")
-            except:
-                errors_file.write(f"{qidx} 0 {docidx} {response_text}\n")
-        
-        except Exception as e:
-            print(f"Error processing QID {qidx}, DOCID {docidx}: {e}")
-        
-        torch.cuda.empty_cache()  # Clear GPU cache if using GPU
-
-  
 
 def main():
-
-    model_id = "meta-llama/Meta-Llama-3-8B-Instruct"
-    test_qrel_path = "./data/llm4eval_test_qrel_2024.txt"
-    result_file_path = 'llm4eval_test_qrel_results_baseline.txt'
-    query_path = "./data/llm4eval_query_2024.txt"
-    docs_path = './data/llm4eval_document_2024.jsonl'
-    chunk_size = 10
+    parser = argparse.ArgumentParser(description="Process QREL data with a specified model.")
+    parser.add_argument("--model_id", type=str, required=True, help="Model ID or path to the model.")
+    parser.add_argument("--test_qrel_path", type=str, required=True, help="Path to the test QREL file.")
+    parser.add_argument("--result_file_path", type=str, required=True, help="Path to the result file.")
+    parser.add_argument("--queries_path", type=str, required=True, help="Path to the queries file.")
+    parser.add_argument("--docs_path", type=str, required=True, help="Path to the documents file.")
+    parser.add_argument("--chunk_size", type=int, default=100, help="Size of chunks to process at a time.")
+    parser.add_argument("--quantized", action="store_true", help="Use quantized model.")
+    parser.add_argument("--problematic_passages_path", type=str, help="Path to the file for problematic passages (CUDA memory problem).")
+    parser.add_argument("--generative_error_file_path", type=str, help="Path to the file for problematic passages (CUDA memory problem).")
+    parser.add_argument("--score_order_in_prompt", type=str,default="3210", help="order of scores in prompt.")
     
     
-    docid_to_doc = get_all_docid_to_doc(docs_path)
-    qid_to_query = get_all_query_id_to_query(query_path)
-    pipeline = get_model_baseline(model_id)
+    args = parser.parse_args()
 
-    if os.path.exists(result_file_path):
-        os.remove(result_file_path)  # Ensure the result file is empty before starting
+    docid_to_doc, qid_to_query, test_qrel = load_data_files(args.docs_path, args.queries_path, args.test_qrel_path)
+    clean_files(args.result_file_path, args.problematic_passages_path, args.generative_error_file_path)
+     
+        
+        
+    system_message = create_system_message(args.score_order_in_prompt)
+    if not args.quantized:
+        pipe = get_model_baseline(args.model_id)
+        result_path =  args.result_file_path.replace(".txt",f"_prompt order: {args.score_order_in_prompt}.txt")
+        process_test_qrel_baseline(test_qrel, docid_to_doc, qid_to_query, result_path, pipe, args.chunk_size, args.generative_error_file_path, args.problematic_passages_path, system_message)
+    else:
+        model, tokenizer = get_model_quantized(args.model_id)
+        process_test_qrel_quantized(test_qrel, docid_to_doc, qid_to_query, args.result_file_path, model, tokenizer,args.problematic_passages_path)
 
-    test_qrel = pd.read_csv(test_qrel_path, sep=" ", header=None, names=['qid', 'Q0', 'docid'])
-    # process_test_qrel_q(test_qrel, docid_to_doc, qid_to_query, result_file_path, model, tokenizer)
-    process_test_qrel_baseline(test_qrel, docid_to_doc, qid_to_query, result_file_path, pipeline,chunk_size)
-    
+
+
+
+
+
 
 
 
