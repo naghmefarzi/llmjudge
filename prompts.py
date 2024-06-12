@@ -77,8 +77,3 @@ def truncate_prompt_based_on_passage(prompt:str,pipeline, max_length: int) -> st
     return f"{prompt[:passage_start_index]} {truncated_passage} {prompt[passage_end_index:]}"
 
 
-def exam_prompt_generate_question(query_text):
-    return '''Break the query ’{query_text}’ into concise questions that must be answered. 
-    Generate 10 concise insightful questions that reveal whether information relevant for ’{query_text}’ was provided, showcasing a deep understanding of the subject matter. 
-    Avoid basic or introductory-level inquiries. Keep the questions short.'''
-
