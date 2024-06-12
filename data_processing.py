@@ -2,7 +2,7 @@ import os
 import jsonlines
 import pandas as pd
 from typing import Tuple, List, Dict, Callable, NewType, Optional, Iterable
-
+from tqdm import tqdm
 
 def load_data_files(docs_path: str, queries_path: str, test_qrel_path : str):
     docid_to_doc = get_all_docid_to_doc(docs_path)
@@ -33,7 +33,7 @@ def get_all_query_id_to_query(query_path:str) -> Dict[str,str]:
     qid_to_query = dict(zip(query_data.qid, query_data.qtext))
     return qid_to_query
 
-def load_documents_in_chunks(docs_path, chunk_size=100):
+def load_documents_in_chunks(docs_path, chunk_size):
     docid_to_doc = {}
     with jsonlines.open(docs_path, 'r') as document_file:
         for obj in document_file:
@@ -44,4 +44,12 @@ def load_documents_in_chunks(docs_path, chunk_size=100):
                 docid_to_doc = {}
         if docid_to_doc:  # Yield the remaining documents if any
             yield docid_to_doc
-
+            
+def process_documents_in_chunks(docid_to_doc, chunk_size):
+    doc_keys = list(docid_to_doc.keys())
+    num_docs = len(doc_keys)
+    
+    for start_idx in tqdm(range(0, num_docs, chunk_size), desc="Processing documents", unit="chunk"):
+        chunk_keys = doc_keys[start_idx:start_idx + chunk_size]
+        chunk_docs = {k: docid_to_doc[k] for k in chunk_keys}
+        yield chunk_docs

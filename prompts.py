@@ -1,4 +1,17 @@
 
+ ## Constants
+
+MAX_LENGTH = 8000
+
+# system_message = """You are a search quality rater evaluating the relevance of passages. Given a query and passage, you must provide a score on an integer scale of 0 to 3 with the following meanings:
+
+# 3 = Perfectly relevant: The passage is dedicated to the query and contains the exact answer.
+# 2 = Highly relevant: The passage has some answer for the query, but the answer may be a bit unclear, or hidden amongst extraneous information.
+# 1 = Related: The passage seems related to the query but does not answer it.
+# 0 = Irrelevant: The passage has nothing to do with the query
+
+# Assume that you are writing an answer to the query. If the passage seems to be related to the query but does not include any answer to the query, mark it 1. If you would use any of the information contained in the passage in such an asnwer, mark it 2. If the passage is primarily about the query, or contains vital information about the topic, mark it 3. Otherwise, mark it 0."""
+
 
 def parse_order(order_str):
     try:
@@ -9,6 +22,7 @@ def parse_order(order_str):
     except ValueError:
         return "Invalid order string"
     
+   
 # Function to create prompts based on different orders
 def create_system_message(order_str):
     order = parse_order(order_str)
@@ -19,8 +33,52 @@ def create_system_message(order_str):
         3: "3 = Perfectly relevant: The passage is dedicated to the query and contains the exact answer."
     }
     ordered_descriptions = "\n    ".join(descriptions[i] for i in order)
-    prompt = f"""You are a search quality rater evaluating the relevance of passages. Given a query and passage, you must provide a score on an integer scale with the following meanings:
-
-    {ordered_descriptions}"""
+    prompt = f"""You are a search quality rater evaluating the relevance of passages. Given a query and passage, you must provide a score on an integer scale of 0 to 3 with the following meanings:\n
+    {ordered_descriptions}
+    Assume that you are writing an answer to the query. If the passage seems to be related to the query but does not include any answer to the query, mark it 1. If you would use any of the information contained in the passage in such an asnwer, mark it 2. If the passage is primarily about the query, or contains vital information about the topic, mark it 3. Otherwise, mark it 0."""
     print(prompt)
     return prompt
+
+
+def get_prompt(query, passage,pipeline):
+
+    prompt = f"""Please rate how the given passage is relevant to the query. The output must be only a score that indicate how relevant they are.
+
+    Query: {query}
+    Passage: {passage}
+
+    Score:"""
+    return prompt
+    # return truncate_prompt_based_on_passage(prompt, pipeline, MAX_LENGTH)
+
+   
+
+
+def truncate_prompt_based_on_passage(prompt:str,pipeline, max_length: int) -> str:
+    # Truncate passage part of the prompt
+    """Truncate passage in the prompt if it exceeds the maximum token length."""
+    tokens = pipeline.tokenizer.tokenize(prompt)
+    if len(tokens) <= max_length:
+        return prompt
+
+    passage_start_index = prompt.find("Passage:") + len("Passage:")
+    passage_end_index = prompt.find("Score:")
+    truncated_passage = prompt[passage_start_index:passage_end_index]
+
+    passage_tokens = pipeline.tokenizer.tokenize(truncated_passage)
+    prompt_tokens = pipeline.tokenizer.tokenize(prompt[:passage_start_index]) + pipeline.tokenizer.tokenize(prompt[passage_end_index:])
+    available_length = max_length - len(prompt_tokens)
+
+    truncated_passage_tokens = passage_tokens[:available_length]
+    # print("here")
+    print(truncated_passage_tokens)
+    truncated_passage = pipeline.tokenizer.decode(truncated_passage_tokens[1])
+    # print(f"{prompt[:passage_start_index]} {truncated_passage} {prompt[passage_end_index:]}")
+    return f"{prompt[:passage_start_index]} {truncated_passage} {prompt[passage_end_index:]}"
+
+
+def exam_prompt_generate_question(query_text):
+    return '''Break the query ’{query_text}’ into concise questions that must be answered. 
+    Generate 10 concise insightful questions that reveal whether information relevant for ’{query_text}’ was provided, showcasing a deep understanding of the subject matter. 
+    Avoid basic or introductory-level inquiries. Keep the questions short.'''
+

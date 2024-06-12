@@ -4,6 +4,8 @@ import numpy as np
 from sklearn.metrics import cohen_kappa_score, confusion_matrix
 import matplotlib.pyplot as plt
 import seaborn as sns
+from trectools import TrecQrel, TrecRun, TrecEval
+import pandas as pd
 
 def read_trec_file(file_path):
     """
@@ -16,6 +18,35 @@ def read_trec_file(file_path):
             qid, _, pid, score = parts
             data[qid].append((pid, int(score)))
     return data
+
+
+def trectoolanalysis(truth_file,experiment_file, analysis_file):
+
+    r1 = TrecRun(experiment_file)
+    print(r1.topics()[:5]) # Shows the first 5 topics
+
+    qrels = TrecQrel(truth_file)
+
+    te = TrecEval(r1, qrels)
+    rbp, residuals = te.get_rbp()           # RBP: 0.474, Residuals: 0.001
+    p100 = te.get_precision(depth=100)     # P@100: 0.186
+    
+    # Check if documents retrieved by the system were judged:
+    cover10 = r1.get_mean_coverage(qrels, topX=10)   # 9.99
+    cover1000 = r1.get_mean_coverage(qrels, topX=1000) # 481.390 
+    # Evaluates r1 using all implemented evaluation metrics
+    result_r1_per_q = te.evaluate_all( per_query=True)
+    result_r1 = te.evaluate_all( per_query=False)
+    
+    # print(result_r1.data)
+    # On average for system 'input.aplrob03a' participating in robust03, 480 documents out of 1000 were judged.
+    with open(analysis_file,"a") as output_file:
+        output_file.write("Average number of documents judged among top 10: %.2f, among top 1000: %.2f \n" % (cover10, cover1000))
+        output_file.write(f"p@100: {p100}\n")
+        result_r1_per_q.data.to_csv(analysis_file.replace(".txt","_per_query.csv"))
+        result_r1.data.to_csv(analysis_file.replace(".txt",".csv"))
+        
+        
 
 def interannotation_agreement(truth_data, experiment_data):
     """
@@ -31,24 +62,8 @@ def interannotation_agreement(truth_data, experiment_data):
             agreements.append((truth_scores[pid], experiment_scores[pid]))
     return agreements
 
-def main(truth_file, experiment_file, analysis_file):
-    # Read TREC files
-    truth_data = read_trec_file(truth_file)
-    experiment_data = read_trec_file(experiment_file)
 
-    # Compute interannotation agreement
-    agreements = interannotation_agreement(truth_data, experiment_data)
-    truth_scores, experiment_scores = zip(*agreements)
-
-    # Calculate Cohen's kappa
-    kappa = cohen_kappa_score(truth_scores, experiment_scores)
-    
-    # Write results to a file
-    with open(analysis_file, "w") as output_file:
-        output_file.write("Interannotation Agreement:\n")
-        output_file.write(f"Total agreements: {len(agreements)}\n")
-        output_file.write(f"Cohen's Kappa: {kappa}\n\n")
-        
+def cf_matrix_figure(truth_scores, experiment_scores, analysis_file):
     # Compute confusion matrix
     cm = confusion_matrix(truth_scores, experiment_scores)
     # print(cm)
@@ -73,7 +88,30 @@ def main(truth_file, experiment_file, analysis_file):
     plt.title('Confusion Matrix')
     plt.savefig(analysis_file.replace(".txt", "_confusion_matrix.png"))
     plt.show()
+    
 
+def main(truth_file, experiment_file, analysis_file):
+    # Read TREC files
+    truth_data = read_trec_file(truth_file)
+    experiment_data = read_trec_file(experiment_file)
+
+    # Compute interannotation agreement
+    agreements = interannotation_agreement(truth_data, experiment_data)
+    truth_scores, experiment_scores = zip(*agreements)
+
+    # Calculate Cohen's kappa
+    kappa = cohen_kappa_score(truth_scores, experiment_scores)
+    
+    # Write results to a file
+    with open(analysis_file, "w") as output_file:
+        output_file.write("Interannotation Agreement:\n")
+        output_file.write(f"Total agreements: {len(agreements)}\n")
+        output_file.write(f"Cohen's Kappa: {kappa}\n\n")
+        
+    cf_matrix_figure(truth_scores, experiment_scores, analysis_file)
+    trectoolanalysis(truth_file,experiment_file, analysis_file)
+    
+    
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="TREC Analysis")
     parser.add_argument("truth_file", type=str, help="Path to the ground truth TREC file")
