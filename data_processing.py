@@ -18,8 +18,9 @@ def clean_files(*file_paths):
         *file_paths (str): Paths to the files to be removed.
     """
     for file_path in file_paths:
-        if os.path.exists(file_path):
-            os.remove(file_path)
+        if file_path is not None:
+            if os.path.exists(file_path):
+                os.remove(file_path)
 
 def get_all_docid_to_doc(docs_path: str = './data/llm4eval_document_2024.jsonl') -> Dict[str,str]:
     docid_to_doc = dict()

@@ -23,7 +23,7 @@ from model_utils import *
 from prompts import create_system_message
 from exam_question_generation import generate_question_set
 from data_processing import load_data_files, clean_files
-from baseline import process_test_qrel_baseline
+from baseline import process_test_qrel_baseline, process_test_qrel_baseline_only_qrel
 from examline import process_exam_qrel
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -50,6 +50,7 @@ def main():
     parser.add_argument("--generative_error_file_path", type=str, help="Path to the file for problematic passages (CUDA memory problem).")
     parser.add_argument("--score_order_in_prompt", type=str, default="3210", help="order of scores in baseline prompt.")
     parser.add_argument("--store_top_k_doc_scores", type=int, default=20, help="write top k documents in qrel file")
+    parser.add_argument("--on_qrel",default=True,type=bool,help="true if you only supposed to run the method on query-passage pairs of qrel files")
     
     
     args = parser.parse_args()
@@ -60,26 +61,36 @@ def main():
         
         
     system_message = create_system_message(args.score_order_in_prompt)
-    if not args.exam:
-        pipe = get_model_baseline(args.model_id)
-        # result_path =  args.result_file_path.replace(".txt",f"_prompt order: {args.score_order_in_prompt}.txt")
-        result_path =  args.result_file_path.replace(".run",f"_prompt order: {args.score_order_in_prompt}.run")
-        
-        generative_error_file_path = args.generative_error_file_path.replace(".txt",f"_prompt order: {args.score_order_in_prompt}.txt")
-        process_test_qrel_baseline(test_qrel, docid_to_doc, qid_to_query, result_path, pipe, args.chunk_size, generative_error_file_path, args.problematic_passages_path, system_message, args.store_top_k_doc_scores)
+    if not args.on_qrel:
+        if not args.exam:
+            pipe = get_model_baseline(args.model_id)
+            # result_path =  args.result_file_path.replace(".txt",f"_prompt order: {args.score_order_in_prompt}.txt")
+            result_path =  args.result_file_path.replace(".run",f"_prompt order: {args.score_order_in_prompt}.run")
+            
+            generative_error_file_path = args.generative_error_file_path.replace(".txt",f"_prompt order: {args.score_order_in_prompt}.txt")
+            process_test_qrel_baseline(test_qrel, docid_to_doc, qid_to_query, result_path, pipe, args.chunk_size, generative_error_file_path, args.problematic_passages_path, system_message, args.store_top_k_doc_scores)
+        else:
+            # NOT COMPLETE YET!!!!!!!!!
+            pipe = get_model_baseline(args.model_id)
+            result_path =  args.result_file_path.replace(".txt",f"_prompt order: {args.score_order_in_prompt}.txt")
+            result_path =  args.result_file_path.replace(".run",f"_prompt order: {args.score_order_in_prompt}.run")
+            generative_error_file_path = args.generative_error_file_path.replace(".txt",f"_prompt order: {args.score_order_in_prompt}.txt")
+            question_set_file_path = './exam_question_set/' + args.test_qrel_path.replace(".txt","_exam.jsonl")
+            if not os.path.exists(question_set_file_path):
+                generate_question_set(args.test_qrel_path, test_qrel, qid_to_query, pipe)
+            process_exam_qrel(test_qrel, docid_to_doc, qid_to_query, result_path, pipe, args.chunk_size, generative_error_file_path, args.problematic_passages_path, system_message, args.store_top_k_doc_scores)
+            
+    # WHAT WE SUPPOSED TO HAVE :
     else:
+        
         pipe = get_model_baseline(args.model_id)
         result_path =  args.result_file_path.replace(".txt",f"_prompt order: {args.score_order_in_prompt}.txt")
         result_path =  args.result_file_path.replace(".run",f"_prompt order: {args.score_order_in_prompt}.run")
-        generative_error_file_path = args.generative_error_file_path.replace(".txt",f"_prompt order: {args.score_order_in_prompt}.txt")
-        question_set_file_path = './exam_question_set/' + args.test_qrel_path.replace(".txt","_exam.jsonl")
-        if not os.path.exists(question_set_file_path):
-            generate_question_set(args.test_qrel_path, test_qrel, qid_to_query, pipe)
+
+        process_test_qrel_baseline_only_qrel(test_qrel, docid_to_doc, qid_to_query, result_path, pipe,  system_message=system_message)
+ 
             
             
-            
-        process_exam_qrel(test_qrel, docid_to_doc, qid_to_query, result_path, pipe, args.chunk_size, generative_error_file_path, args.problematic_passages_path, system_message, args.store_top_k_doc_scores)
-        
 
 
 

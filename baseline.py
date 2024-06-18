@@ -22,17 +22,8 @@ sys.path.append('.')
 from model_utils import *
 from relevance_scoring import get_relevance_score_baseline, write_top_k_results, process_documents
 from data_processing import load_data_files, clean_files, process_documents_in_chunks
-from prompts import create_system_message
+from prompts import *
 from exam_question_generation import generate_question_set
-
-
-# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-# os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
-# print("device: {d}".format(d = device))
-
-
-# logging.basicConfig(level=logging.WARNING)
-# logger = logging.getLogger(__name__)
 
 
 
@@ -47,55 +38,34 @@ def process_test_qrel_baseline(test_qrel, docid_to_doc, qid_to_query, result_pat
     torch.cuda.empty_cache()  # Clear GPU cache if using GPU
 
 
-
-
-
-# def main():
-#     parser = argparse.ArgumentParser(description="Process QREL data with a specified model.")
-#     parser.add_argument("--model_id", type=str, required=True, help="Model ID or path to the model.")
-#     parser.add_argument("--test_qrel_path", type=str, required=True, help="Path to the test QREL file.")
-#     parser.add_argument("--result_file_path", type=str, required=True, help="Path to the result file.")
-#     parser.add_argument("--queries_path", type=str, required=True, help="Path to the queries file.")
-#     parser.add_argument("--docs_path", type=str, required=True, help="Path to the documents file.")
-#     parser.add_argument("--chunk_size", type=int, default=1000, help="Size of chunks to process at a time.")
-#     parser.add_argument("--exam", action="store_true", help="Use exam model.")
-#     parser.add_argument("--problematic_passages_path", type=str, help="Path to the file for problematic passages (CUDA memory problem).")
-#     parser.add_argument("--generative_error_file_path", type=str, help="Path to the file for problematic passages (CUDA memory problem).")
-#     parser.add_argument("--score_order_in_prompt", type=str, default="3210", help="order of scores in baseline prompt.")
-#     parser.add_argument("--store_top_k_doc_scores", type=int, default=20, help="write top k documents in qrel file")
-    
-    
-#     args = parser.parse_args()
-
-#     docid_to_doc, qid_to_query, test_qrel = load_data_files(args.docs_path, args.queries_path, args.test_qrel_path)
-#     clean_files(args.result_file_path, args.problematic_passages_path, args.generative_error_file_path)
-     
-        
-        
-#     system_message = create_system_message(args.score_order_in_prompt)
-#     if not args.exam:
-#         pipe = get_model_baseline(args.model_id)
-#         # result_path =  args.result_file_path.replace(".txt",f"_prompt order: {args.score_order_in_prompt}.txt")
-#         result_path =  args.result_file_path.replace(".run",f"_prompt order: {args.score_order_in_prompt}.run")
-        
-#         generative_error_file_path = args.generative_error_file_path.replace(".txt",f"_prompt order: {args.score_order_in_prompt}.txt")
-#         process_test_qrel_baseline(test_qrel, docid_to_doc, qid_to_query, result_path, pipe, args.chunk_size, generative_error_file_path, args.problematic_passages_path, system_message, args.store_top_k_doc_scores)
-#     else:
-#         pipe = get_model_baseline(args.model_id)
-#         result_path =  args.result_file_path.replace(".txt",f"_prompt order: {args.score_order_in_prompt}.txt")
-#         result_path =  args.result_file_path.replace(".run",f"_prompt order: {args.score_order_in_prompt}.run")
-#         generative_error_file_path = args.generative_error_file_path.replace(".txt",f"_prompt order: {args.score_order_in_prompt}.txt")
-#         question_set_file_path = './exam_question_set/' + args.test_qrel_path.replace(".txt","_exam.jsonl")
-#         if not os.path.exists(question_set_file_path):
-#             generate_question_set(args.test_qrel_path, test_qrel, qid_to_query, pipe)
+def process_test_qrel_baseline_only_qrel(test_qrel, docid_to_doc, qid_to_query, result_path, pipeline ,system_message:str):
+    with open(result_path, 'w') as result_file:
+        for eachline in tqdm(test_qrel.itertuples(index=True)):
+            qidx = eachline.qid
+            docidx = eachline.docid
             
+            # Generate prompt
+            prompt = get_prompt(query=qid_to_query[qidx], passage=docid_to_doc[docidx], pipeline=pipeline)
             
+            try:
+                # Get relevance score
+                pred_score = get_relevance_score_baseline(prompt, pipeline, system_message)
+            except RuntimeError as e:
+                if 'CUDA out of memory' in str(e):
+                    print(f"CUDA out of memory error for docid {docidx}. Skipping this document.")
+                    continue
+                else:
+                    raise e
             
-#         process_exam_qrel(test_qrel, docid_to_doc, qid_to_query, result_path, pipe, args.chunk_size, generative_error_file_path, args.problematic_passages_path, system_message, args.store_top_k_doc_scores)
+            # Debugging: Print prompt and score once
+            if not hasattr(process_test_qrel_baseline_only_qrel, "called"):
+                process_test_qrel_baseline_only_qrel.called = True
+                print(prompt)
+                print()
+                print(f"{qidx} 0 {docidx} {pred_score}\n")
+            
+            # Write result to file
+            result_file.write(f"{qidx} 0 {docidx} {pred_score}\n")
 
 
 
-
-# if __name__=="__main__":
-#     main()
-    

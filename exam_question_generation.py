@@ -1,4 +1,4 @@
-from prompts import exam_prompt_generate_question
+# from prompts import exam_prompt_generate_question
 from typing import Tuple, List, Dict, Callable, NewType, Optional, Iterable
 from hashlib import md5
 
