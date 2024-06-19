@@ -3,6 +3,8 @@ from heapq import nlargest
 from prompts import get_prompt
 from typing import Tuple, List, Dict, Callable, NewType, Optional, Iterable
 import torch
+from prompts import create_system_message
+import re
 
 def process_batch_baseline(batch, qid_to_query, docid_to_doc,  result_file, pipeline,generative_error_file_path:Optional[str], problematic_passages_path: Optional[str], system_message: str):
 
@@ -35,6 +37,74 @@ def process_batch_baseline(batch, qid_to_query, docid_to_doc,  result_file, pipe
                         # print(f"Error processing QID {qidx}, DOCID {docidx}: {e}")
         
         torch.cuda.empty_cache()  # Clear GPU cache if using GPU
+
+
+
+def find_first_number(text):
+    # Regular expression to find standalone numbers
+    match = re.search(r'\b\d+\b', text)
+    if match:
+        if 0<=int(match.group())<=3:
+            return int(match.group())
+    else:
+        return None
+
+def get_relevance_score_iterative_prompts(query,passage,pipeline,log_file_path,system_message):
+    decomposed_scores_list = []
+    # Define the initial prompt
+    system_message_decomposition = """You are evaluating the relevance of a passage to a query. Please provide a score on an integer scale of 0 to 3 for each dimension of relevance.
+
+3 = Excellent: The passage fully meets the criteria.
+2 = Good: The passage partially meets the criteria.
+1 = Fair: The passage has minor relevance but lacks in certain aspects.
+0 = Poor: The passage does not meet the criteria at all.
+
+Proceed with the evaluation.\n"""
+
+    # Define the hierarchical order of prompts
+    decomposed_criterias = {
+        "Exactness":" How precisely does the passage answer the query",
+        "Topicality": "Is the passage about the same subject as the query",
+        "Depth": "How much detail does the passage provide about the topic",
+        "Contextual Fit": "Does the passage provide relevant background or context",
+    }
+    prompt = f'''
+
+        Query: {query}
+        Passage: {passage}\n'''
+    
+    for i in range(len(decomposed_criterias)):
+        
+        criteria_prompt = f"Please rate how the given passage in case of {list(decomposed_criterias.keys())[i]} to the query. The output must be only a score (0-3) that indicate {list(decomposed_criterias.values())[i]}."         
+        
+        to_ask_prompt = criteria_prompt + prompt+'''\nScore:'''
+            
+        score = get_relevance_score_baseline(to_ask_prompt,pipeline,system_message_decomposition)
+        num_score = find_first_number(score)
+        prompt+=f"\n{list(decomposed_criterias.keys())[i]}: {num_score}"
+        decomposed_scores_list.append(num_score)
+        if not hasattr(get_relevance_score_iterative_prompts,"called"):
+            # get_relevance_score_iterative_prompts.called =True
+            print(system_message_decomposition)
+            print(to_ask_prompt)
+            print(score)
+    with open(log_file_path,"a") as f:
+        f.write(prompt)
+            
+    criteria_prompt = '''Please rate how the given passage is relevant to the query. The output must be only a score that indicate how relevant they are.\n'''
+    to_ask_prompt = criteria_prompt + prompt + '''\nScore:'''
+    score = get_relevance_score_baseline(prompt,pipeline,system_message)
+    num_score = find_first_number(score)
+    if not hasattr(get_relevance_score_iterative_prompts,"called"):
+            get_relevance_score_iterative_prompts.called =True
+            print("******")
+            print(system_message)
+            print(to_ask_prompt)
+            print(score)
+            print("*"*20)
+            print(num_score)
+    return num_score , decomposed_scores_list
+        
 
 
  

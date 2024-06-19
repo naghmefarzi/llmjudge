@@ -54,6 +54,9 @@ def get_prompt(query, passage,pipeline):
    
 
 
+
+
+
 def truncate_prompt_based_on_passage(prompt:str,pipeline, max_length: int) -> str:
     # Truncate passage part of the prompt
     """Truncate passage in the prompt if it exceeds the maximum token length."""

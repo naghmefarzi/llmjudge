@@ -9,7 +9,7 @@ def ck_analysis(qrel1_path,qrel2_path,result_path):
     # Ensure the QREL files are sorted or merged correctly if necessary
     # Assuming both files have 'qid' and 'docid' columns to merge on
     merged = pd.merge(qrel1_df, qrel2_df, on=['qid', 'docid'], suffixes=('_1', '_2'))
-
+    print(merged.head(5))
     # Extract labels
     labels1 = merged['label_1']  
     labels2 = merged['label_2']  

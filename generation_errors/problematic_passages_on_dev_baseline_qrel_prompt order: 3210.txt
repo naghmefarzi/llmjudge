@@ -1,0 +1,463 @@
+q11 0 p2292  on, on, 
+on, on, on-s, on, on, on, most, on, the- 
+on, on, on, on, on, the- most, the- 
+
+ 
+on, the- 
+
+ 
+on, on, the- 
+on, on, the- 
+on, on, the- the- on, on, the- on, on, the most, the- the- 
+on, the most, the- 
+on, the
+q47 0 p5865     The query. The query. The query. The query. The query. The query. The query. The query. The query. The query. The query. The query. The query. The query. The query. The query. The query. The query. The query. The query. The query. The query. The query. The query. The query. The query. The query. The query. The query. The query. The query. The query. The query.
+q6 0 p3170 Based on the provided list of passages, I would rate the relevance of each passage to the query "what did Nato mean by mutual defense" as follows:
+
+* Score: 0 (Irrelevant) - None of the passages are related to NATO or the concept of "mutual defense".
+
+The passages appear to be related to various audio plugins and software, and do not contain any information about NATO or its policies.
+q7 0 p4764  ;      ; ';                    ; ;       ;     ;  ;      '       ; ;       ';'  ;  ;     ; ;;            ;  ;     
+q26 0 p9118  D and CTE C D and C C D and C D and C C C C C C D and C C D and C and C C D C C D C D and C C D and C D and C A technology and C C D and C and C C C 
+
+C D and C D and C C D and C D and C C D and C C D and C C D and C D and C D and C D and Technology and C D and C C and
+q40 0 p3170 Based on the provided list of plugins and their relevance to the query "what is secom", I would rate the relevance of each plugin as follows:
+
+* None of the plugins have a direct relevance to the query "what is secom", as none of them are related to the term "secom".
+* Most of the plugins are audio processing plugins, which are not directly related to the query.
+* A few plugins, such as the "Waves Tune" and "Abbey Road TG Master
+q40 0 p6694 I'd rate the passage as a 0. The passage appears to be a list of UNESCO World Heritage Sites, and it doesn't contain any information related to the query "what is secom".
+q40 0 p4030 I would rate the passage as 0, as it appears to be a list of UNESCO World Heritage Sites and does not contain any information related to the query "what is secom".
+q10 0 p3170 Based on the query and passage provided, I would rate the relevance of the passage as 0. This is because the passage is a list of plugin products from Waves, and none of the plugins seem to be related to the query "why do pilots purposely fly low". The query is about aviation and flying, while the passage is about audio processing and music production. There is no apparent connection between the two.
+q29 0 p4793  and...  The passage of essays.
+q29 0 p3535  on  on essay on   
+t   
+ on   
+  on  on a   
+am on  on  on  on a   
+   
+am on a on   
+am on a on a   
+w on  on the on  on   
+am on   
+ thesis   
+ thesis  on a on a   
+am on  on   
+th on  on a on cialis   
+   
+ on   
+th on a on  on a on  on   
+ thesis on a   
+ on   
+ w on a   
+  on a   
+
+q29 0 p10587  0 1 viagra 1 1 40 on the 1 24 buy 1 2 cialis 1 7 cialis 30 30 1 cialis cialis cialis 1 1 cialis cialis cialis 1 10 1 1 1 cialis cialis 1 2 cialis 1 1 10 on cialis 1 1 1 1 1 24 cialis 1 1 cialis 30 1 1 1 30 1 
+q29 0 p7051  The passage of the passage
+
+
+q29 0 p9109 ,r
+
+,,,,
+
+
+
+
+
+
+
+,
+
+
+
+,,,,
+
+,
+
+,r
+
+,
+
+.,
+
+
+
+,
+
+
+
+,
+
+
+
+
+
+
+
+
+
+,,r,
+
+,,,,,
+
+
+
+
+
+,
+
+,,
+
+
+
+,r
+
+,
+
+,
+
+,r
+
+,,,
+
+,
+
+,r,,
+
+
+
+
+
+
+
+
+
+
+
+
+
+,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+,
+
+
+
+,
+
+,,
+
+
+
+
+
+
+
+
+
+
+q29 0 p3170 Based on the provided list of passages and their corresponding scores, I would rate the relevance of the passages to the query "koit number" as follows:
+
+* None of the passages have a score of 3, indicating that none of them are perfectly relevant to the query.
+* Most passages have a score of 0 or 1, indicating that they are not relevant or only slightly relevant to the query.
+* A few passages have a score of 2, indicating that they have some relevance to
+q29 0 p9118 In the CDS C D C D C D C D C D C C C C C D C C C C D C D and C DTM C C C D C D C D C C D MDT 0 C D C D C D C D C D C D - 
+
+ C D
+
+ C D C D C D C and Technology and Technology and Technology and C D C D C D C D C D C D C D C D C D C D C and Technology
+q29 0 p10751  The passage of the passage the passage
+q29 0 p2715 Based on the passage, I would rate the relevance of the query "koit number" as 0 (Irrelevant). The passage appears to be a list of synonyms for various words and phrases, with no apparent connection to the query.
+q24 0 p8762 I would rate this passage as a 0. The passage is a collection of random words and phrases with no coherent meaning or relevance to the query "vikus main role in gregor". The passage does not provide any information or insights about the topic, and the words are not related to each other in a meaningful way.
+q28 0 p9109 
+
+,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+,
+
+,
+
+,,
+
+,,,
+
+,,,
+
+
+
+,,
+
+
+
+
+
+
+
+,,
+
+,
+
+,
+
+
+
+
+
+,,
+
+
+
+,r
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+,
+
+
+
+,
+
+
+
+
+
+,
+
+
+
+
+
+
+
+,
+
+
+
+,,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+,
+
+,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+,
+
+,
+q28 0 p8555 0
+
+The passage is completely unrelated to the query "what is the best credit card for seniors". The query is about credit cards, while the passage is about MannKind Corporation, a biopharmaceutical company, and its various announcements and updates.
+q28 0 p2002 
+
+
+
+ the and
+
+
+
+
+
+ in the
+
+
+
+ to a
+
+
+
+
+
+ R
+
+
+
+
+
+
+
+ to in
+
+ to
+
+
+
+ in to
+
+
+
+
+
+ in
+
+ in
+
+
+
+
+
+
+
+
+
+ in to 
+
+ to
+
+ in to
+
+
+
+
+
+ 
+
+ in to the
+
+ in. the
+
+ to
+
+ and
+
+
+
+ the the
+
+
+
+ to
+
+
+
+ in the
+
+
+
+
+
+
+
+
+
+
+
+ and
+
+
+
+
+
+ to a in
+
+
+
+ in the
+
+ to
+
+
+
+
+
+
+
+
+
+ in to
+ q23 0 p8935 &# 
+12:13:15:14:14:14:14:15:36:31:13:13:14:13:13:14:13:30:30:04:30:30:03:15:13:34:14:15:14:15:03:31:30:14:31:13:14:14:17:30:30:34â‍7:30:01:30:00:16:13
+q23 0 p8555 I'd rate the passage a 0. The passage is not related to the query "what navigation system does Ireland use" at all. It's a collection of news releases from MannKind Corporation, a company that develops and commercializes inhaled therapeutic products, and has no connection to Ireland or navigation systems.
+q3 0 p3170 Based on the query and passage, I would rate the relevance as follows:
+
+* Query: "what does frq stand for in the workplace"
+* Passage: The passage is a list of various audio plugins and their descriptions, with no mention of "frq" or its meaning in the workplace.
+
+Score: 0 (Irrelevant)
+q39 0 p8935 :04:13:03:15:14:01:13:14:13:13:15:14:13:14:13:13:14:14:38âcâ[/:10:15:15:30:14:14:30:04:15:13:13:17:14:31:14:14:14:03:07:00:30:30:29 16:13:Ââ
+
+âÃâ
+q39 0 p3099 I would rate this passage a score of 0. The passage is a list of dates from 2001 to 2021, with no relevance to the query "What is the number of breast cancer deaths in the UK annually?" The passage does not provide any information about breast cancer deaths in the UK, nor does it provide any statistics or data related to the query. Therefore, I would rate it as irrelevant and score it a 0.
+q39 0 p10888 I would rate this passage a 0, as it is completely irrelevant to the query "What is the number of breast cancer deaths in the UK annually?" The passage appears to be a list of dates, likely related to a music chart or some other unrelated topic.
+q42 0 p5207 0
+
+The passage is completely irrelevant to the query "What are some benefits of making a homemade Halloween costume?" The passage discusses gender and sexuality, and provides a detailed explanation of the differences between sex and gender, as well as different gender identities. There is no mention of Halloween, costumes, or any related topics.
+q39 0 p3552 Please provide a response to the following the following the passage is a passage is a query, and the passage, and the passage, and the passage, and the passage.

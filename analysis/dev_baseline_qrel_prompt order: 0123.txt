@@ -1,0 +1,3 @@
+first qrel file is: ./data/llm4eval_dev_qrel_2024.txt
+second qrel file is: ./results/dev_baseline_qrel_prompt order: 0123.txt
+Cohen's kappa score: 0.05333167325258126
