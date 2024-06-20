@@ -81,21 +81,26 @@ def process_test_qrel_baseline_only_qrel(test_qrel, docid_to_doc, qid_to_query, 
 
 def process_test_iterative_prompts_only_qrel(test_qrel, docid_to_doc, qid_to_query, result_path:str, pipeline ,system_message:str):
     generation_path = result_path.replace("results","generation_errors")
-    logs_path = result_path.replace("results","logs") 
+    logs_path = result_path.replace("results","logs").replace(".txt",".json") 
     decomposed_path = result_path.replace("results","decomposed_scores").replace(".txt",".json") 
+    cuda_errors_path = result_path.replace("results","cuda_errors")
     decomposed_scores = {}
     
-    with open(result_path, 'w') as result_file, open(generation_path, 'w') as generation_errors_file:
+    with open(result_path, 'w') as result_file, open(generation_path, 'w') as generation_errors_file, open(cuda_errors_path,"w") as cuda_errors_file:
         for eachline in tqdm(test_qrel.itertuples(index=True)):
             qidx = eachline.qid
             docidx = eachline.docid
 
             try:
                 # Get relevance score
-                pred_score, decomposed_scores_list_for_one_query = get_relevance_score_iterative_prompts(query=qid_to_query[qidx], passage=docid_to_doc[docidx],pipeline=pipeline,log_file_path=logs_path,system_message=system_message)
+                pred_score, decomposed_scores_list_for_one_query = get_relevance_score_iterative_prompts(query=qid_to_query[qidx], passage=docid_to_doc[docidx],pipeline=pipeline,log_file_path=logs_path,system_message=system_message,qidx=qidx,docidx=docidx)
+                decomposed_scores[(qidx,docidx)] = decomposed_scores_list_for_one_query
             except RuntimeError as e:
                 if 'CUDA out of memory' in str(e):
-                    print(f"CUDA out of memory error for docid {docidx}. Skipping this document.")
+                    error = f"CUDA out of memory error for docid {docidx}. Skipping this document."
+                    print(error)
+                    cuda_errors_file.write(error)
+                    
                     result_file.write(f"{qidx} 0 {docidx} 0\n")
                     
                     continue
@@ -108,10 +113,12 @@ def process_test_iterative_prompts_only_qrel(test_qrel, docid_to_doc, qid_to_que
                 print(f"{qidx} 0 {docidx} {pred_score}\n")
             try:
                 int_pred_score = int(pred_score)
-
-                # Write result to file
-                result_file.write(f"{qidx} 0 {docidx} {pred_score}\n")
-                decomposed_scores[(qidx,docidx)] = decomposed_scores_list_for_one_query
+                if 0<=int_pred_score<=3:
+                    # Write result to file
+                    result_file.write(f"{qidx} 0 {docidx} {pred_score}\n")
+                else:
+                    result_file.write(f"{qidx} 0 {docidx} 0\n")
+                
             except:
                 generation_errors_file.write(f"{qidx} 0 {docidx} {pred_score}\n")
                 

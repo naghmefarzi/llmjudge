@@ -16,7 +16,7 @@ python3 cohens_kappa_multiclass.py "./data/llm4eval_dev_qrel_2024.txt" "./result
 
 command on iterative prompting with 3210 as order:
 
-python3 main.py --model_id "meta-llama/Meta-Llama-3-8B-Instruct" --test_qrel_path "./data/llm4eval_dev_qrel_2024.txt" --queries_path "./data/llm4eval_query_2024.txt" --docs_path "./data/llm4eval_document_2024.jsonl" --result_file_path "./results/dev_iterative_prompting_qrel.txt" --score_order_in_prompt "3210" --iterative_prompts
+python3 main.py --model_id "meta-llama/Meta-Llama-3-8B-Instruct" --test_qrel_path "./data/llm4eval_dev_qrel_2024.txt" --queries_path "./data/llm4eval_query_2024.txt" --docs_path "./data/llm4eval_document_2024.jsonl" --result_file_path "./results/dev_iterative_prompting_qrel.txt" --score_order_in_prompt "3210" --iterative_prompts True
 
 
 

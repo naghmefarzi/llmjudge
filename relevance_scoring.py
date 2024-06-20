@@ -5,6 +5,7 @@ from typing import Tuple, List, Dict, Callable, NewType, Optional, Iterable
 import torch
 from prompts import create_system_message
 import re
+import json
 
 def process_batch_baseline(batch, qid_to_query, docid_to_doc,  result_file, pipeline,generative_error_file_path:Optional[str], problematic_passages_path: Optional[str], system_message: str):
 
@@ -49,8 +50,8 @@ def find_first_number(text):
     else:
         return None
 
-def get_relevance_score_iterative_prompts(query,passage,pipeline,log_file_path,system_message):
-    decomposed_scores_list = []
+def get_relevance_score_iterative_prompts(query,passage,pipeline,log_file_path,system_message,qidx,docidx):
+    decomposed_scores_dict = {}
     # Define the initial prompt
     system_message_decomposition = """You are evaluating the relevance of a passage to a query. Please provide a score on an integer scale of 0 to 3 for each dimension of relevance.
 
@@ -82,14 +83,22 @@ Proceed with the evaluation.\n"""
         score = get_relevance_score_baseline(to_ask_prompt,pipeline,system_message_decomposition)
         num_score = find_first_number(score)
         prompt+=f"\n{list(decomposed_criterias.keys())[i]}: {num_score}"
-        decomposed_scores_list.append(num_score)
+        decomposed_scores_dict[list(decomposed_criterias.keys())[i]]=num_score
         if not hasattr(get_relevance_score_iterative_prompts,"called"):
             # get_relevance_score_iterative_prompts.called =True
             print(system_message_decomposition)
             print(to_ask_prompt)
             print(score)
-    with open(log_file_path,"a") as f:
-        f.write(prompt)
+    inf = {"qidx":qidx,
+                   "docidx":docidx,
+                   "query": query,
+                   "passage": passage,
+                   "decomposed_scores_dict":decomposed_scores_dict,
+                   "prompt":prompt,
+                   
+            
+        }
+    
             
     criteria_prompt = '''Please rate how the given passage is relevant to the query. The output must be only a score that indicate how relevant they are.\n'''
     to_ask_prompt = criteria_prompt + prompt + '''\nScore:'''
@@ -103,7 +112,12 @@ Proceed with the evaluation.\n"""
             print(score)
             print("*"*20)
             print(num_score)
-    return num_score , decomposed_scores_list
+    inf['relevance_prompt']=to_ask_prompt
+    inf['llm_response'] = score
+    inf['final_relevance_score'] = num_score
+    with open(log_file_path,"a") as f:
+        json.dump(inf, f)
+    return num_score , decomposed_scores_dict
         
 
 
