@@ -122,6 +122,81 @@ Proceed with the evaluation.\n"""
 
 
  
+ 
+ 
+def get_relevance_score_decomposed_prompts(query,passage,pipeline,log_file_path,system_message,qidx,docidx):
+    decomposed_scores_dict = {}
+    # Define the initial prompt
+    system_message_decomposition = """You are evaluating the relevance of a passage to a query. Please provide a score on an integer scale of 0 to 3 for each dimension of relevance.
+
+3 = Excellent: The passage fully meets the criteria.
+2 = Good: The passage partially meets the criteria.
+1 = Fair: The passage has minor relevance but lacks in certain aspects.
+0 = Poor: The passage does not meet the criteria at all.
+
+Proceed with the evaluation.\n"""
+
+    # Define the hierarchical order of prompts
+    decomposed_criterias = {
+        "Exactness":" How precisely does the passage answer the query",
+        "Topicality": "Is the passage about the same subject as the query",
+        "Depth": "How much detail does the passage provide about the topic",
+        "Contextual Fit": "Does the passage provide relevant background or context",
+    }
+    prompt = f'''
+        Query: {query}
+        Passage: {passage}\n'''
+    prompt_ = prompt
+    for i in range(len(decomposed_criterias)):
+        
+        criteria_prompt = f"Please rate how the given passage in case of {list(decomposed_criterias.keys())[i]} to the query. The output must be only a score (0-3) that indicate {list(decomposed_criterias.values())[i]}."         
+        
+        to_ask_prompt = criteria_prompt + prompt+'''\nScore:'''
+            
+        score = get_relevance_score_baseline(to_ask_prompt,pipeline,system_message_decomposition)
+        num_score = find_first_number(score)
+        prompt_+=f"\n{list(decomposed_criterias.keys())[i]}: {num_score}"
+        decomposed_scores_dict[list(decomposed_criterias.keys())[i]]=num_score
+        if not hasattr(get_relevance_score_iterative_prompts,"called"):
+            # get_relevance_score_iterative_prompts.called =True
+            print(system_message_decomposition)
+            print(to_ask_prompt)
+            print(score)
+    inf = {"qidx":qidx,
+                   "docidx":docidx,
+                   "query": query,
+                   "passage": passage,
+                   "decomposed_scores_dict":decomposed_scores_dict,
+                   "prompt":prompt_,
+                   
+            
+        }
+    
+            
+    criteria_prompt = '''Please rate how the given passage is relevant to the query. The output must be only a score that indicate how relevant they are.\n'''
+    to_ask_prompt = criteria_prompt + prompt_ + '''\nScore:'''
+    score = get_relevance_score_baseline(prompt,pipeline,system_message)
+    num_score = find_first_number(score)
+    if not hasattr(get_relevance_score_iterative_prompts,"called"):
+            get_relevance_score_iterative_prompts.called =True
+            print("******")
+            print(system_message)
+            print(to_ask_prompt)
+            print(score)
+            print("*"*20)
+            print(num_score)
+    inf['relevance_prompt']=to_ask_prompt
+    inf['llm_response'] = score
+    inf['final_relevance_score'] = num_score
+    with open(log_file_path,"a") as f:
+        json.dump(inf, f)
+    return num_score , decomposed_scores_dict
+        
+
+
+ 
+ 
+ 
 
 def get_relevance_score_baseline(prompt: str,pipeline,system_message:str):
   messages = [

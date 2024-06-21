@@ -1,0 +1,552 @@
+q11 0 p2292  on, on, 
+on, on, the- 
+on, on, 
+on, on, on, on, the- 
+on, on, the- the most, on, on, the- most, the pit, the- the- the most, the- the- most, the- 
+on, the- the- on, on, the-p, the most, the, on, the- 
+
+ 
+on, the- 
+on, the- 
+on,
+q11 0 p2618  | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+q47 0 p5865     the passage.
+q47 0 p2618  | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+q5 0 p2618  | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+q6 0 p3170 Based on the query "what did Nato mean by mutual defense", I would rate the relevance of the passages as follows:
+
+* None of the passages are relevant to the query.
+
+The passages appear to be a list of plugin products from Waves, a audio software company. None of the passages mention Nato or mutual defense. The query is unrelated to the topics discussed in the passages.
+q7 0 p4764   ;     ;        '           ;    ;    ;   ; ;   ';   (                 ; '     ;  ;    ;        ; ;;    ;      
+q7 0 p2618  | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+q26 0 p9118 University of the C-Technology C-Computer C and C and C and C and C and C and C and C and C and C and C and C and C and C and C and C and C and C and C and C the C and C and C and C and C and C and C and C and C and C and C and C and C and C and C and C and C and C and C and C and C and C and C and C and C and C
+q40 0 p3170 Based on the provided passage, I would rate the relevance of each passage to the query "what is secom" as follows:
+
+* Score: 0 (Irrelevant)
+q40 0 p6694 Based on the passage, I would rate its relevance to the query "what is secom" as 0. The passage does not mention "secom" at all, and it appears to be a collection of UNESCO World Heritage Sites from around the world. The query is likely a typo or a mistake, and the passage does not provide any information that is relevant to the query.
+q10 0 p3170 Based on the query and passage, I would rate the relevance of the passage as 0, as it does not seem to be related to the query "why do pilots purposely fly low".
+q10 0 p2618  | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+q29 0 p4793  passage of 100% of your passage of 0  and the passage of 
+q29 0 p3535  on   
+ on   
+ on   
+a   
+  on essay on  on  on a  on   
+am on   
+w   
+a   
+  on an on   
+t   
+am on   
+am on   
+u   
+ on a   
+ on   
+am on   
+thesis on a thesis   
+ on a   
+t on  on   
+ on   
+t   
+  on   
+ on   
+  on   
+ on a   
+t on a on  on   
+b   
+ on   
+ on   
+ thesis   
+ on a   
+ on   
+ on a
+q29 0 p10587  1 cialis 1 cialis the 40 cialis 1 cialis 1 cialis 36 1 cialis 2 how 50 cialis 40 cialis 50 cialis 1 cialis cialis 1 cialis 24 uk 1 cialis 24 uk 10 on the 1 cialis 1 cialis 1 cialis 1 cialis 10 on 1 cialis 1 cialis 1 cialis 25 1 cialis 25 uk 1 cialis 1 cialis 1 2 20 on the 
+q29 0 p7051  passing the passage the passage
+
+ The passage the passage the passage
+q29 0 p9109 ,
+
+,,
+
+
+
+
+
+
+
+,
+
+,
+
+,
+
+,,
+
+
+
+
+
+
+
+
+
+
+
+
+
+,
+
+
+
+,
+
+,
+
+
+
+
+
+,
+
+
+
+,r
+
+,,,,,
+
+
+
+
+
+
+
+
+
+
+
+,
+
+
+
+,,
+
+
+
+
+
+
+
+
+
+
+
+
+
+,
+
+
+
+,
+
+
+
+,
+
+
+
+,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+,
+
+
+
+,.,
+
+
+
+
+
+,,r
+
+
+
+
+
+
+
+
+
+
+
+
+q29 0 p3170 Based on the provided list of plugins and their scores, I would rate the overall relevance of the passage to the query "koit number" as 0.
+
+The passage does not contain any information related to "koit number". The query appears to be a specific term or phrase, and the passage does not provide any context or relevance to it. Therefore, I would rate the relevance as 0.
+q29 0 p9118 In the C D C D C D C D C D C D C D C C D C C C C D C D C D C D C D C C D C D C and Technology and Technology and Technology C D and Technology C D C D  C D C D C D C D C D C D C and Technology and Technology and Technology and Technology C D C D C D C D C D C D C D C D C D C and Technology and Technology and Technology C
+q29 0 p10751  theoretical student essays
+
+3 pass an essay
+
+ The passage of essays and essays and the passage of essays 2 passage 0 to the passage  not an essay
+
+
+q24 0 p8762 Based on the query "vikus main role in gregor" and the passage provided, I would rate the relevance of the passage as 0. The passage appears to be a collection of random words and phrases that do not relate to the query at all. The query is about "vikus main role in gregor", but the passage does not contain any information about Vikus, Gregor, or any related topics. Therefore, the score is 0.
+q28 0 p9109 
+
+
+
+,
+
+,
+
+
+
+
+
+,
+
+
+
+,
+
+.
+
+,,
+
+
+
+,
+
+
+
+
+
+
+
+
+
+
+
+,,r
+
+
+
+
+
+,r
+
+
+
+
+
+
+
+
+
+,r
+
+
+
+,
+
+,
+
+
+
+,
+
+,
+
+
+
+
+
+
+
+,,r
+
+,
+
+,
+
+
+
+
+
+,
+
+
+
+
+
+,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+,
+
+
+
+
+
+
+
+
+
+
+
+
+
+,
+
+
+
+
+
+,.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+,
+
+
+q28 0 p8555 0
+
+The passage does not contain any information about the best credit card for seniors, and the query is not answered in the passage.
+q28 0 p2002  R
+
+
+
+
+
+ R
+
+ and
+
+ to
+
+
+
+
+
+
+
+
+
+
+
+ the
+
+ R
+
+
+
+
+
+
+
+
+
+
+
+ to
+
+ to to to to
+
+ In
+
+ to
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+ 
+
+ in
+
+
+
+
+
+
+
+
+
+ in
+
+
+
+
+
+
+
+
+
+ in the
+
+
+
+
+
+
+
+
+
+ in
+
+
+
+
+
+
+
+ in a 
+
+ 
+
+ in
+
+
+
+  to
+
+ in to
+
+ the
+
+
+
+
+
+
+
+ in a
+
+
+
+
+
+ R
+
+
+
+ in  in the
+q27 0 p2618  | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+q23 0 p8935 4:14:16:10:14:03:14:14:14:13:29:13:07:14:13:30:13:13:13:13:03:05:15:30:16 0:13:14:14:14:14:32:16:14:14:32:31:13:13:17:07:30:07:1:04:14:13:Â&#ÂÂâ&#
+q23 0 p8555 I would rate this passage as 0. The passage is about MannKind Corporation's news releases and does not provide any information about navigation systems used in Ireland.
+q23 0 p6807  on  On On  On On
+
+ on on (  on On.
+
+ on  On   On  On On On on   On On  on On On on on    on  on
+
+
+
+
+
+   On on
+
+   On On 
+
+ On  On on On-  On
+
+ On- .   on on
+
+ On On
+
+ On   On. on
+
+ On  On on on 
+
+  On 
+
+  
+q23 0 p2618  | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+q3 0 p4162 This passage is a perfect score
+q3 0 p8555 Based on the query "what does FRQ stand for in the workplace" and the passage provided, I would rate the relevance as 0 (Irrelevant). The passage does not mention FRQ or any workplace-related information. The passage appears to be a collection of news releases from MannKind Corporation, a biopharmaceutical company, and does not provide any information about FRQ or its meaning in the workplace.
+q3 0 p3170 Based on the provided data, I'll rate the relevance of each passage to the query "what does FRQ stand for in the workplace".
+
+Since none of the passages match the query, I'll rate them as follows:
+
+* All passages: 0/3 (Irrelevant)
+
+The passages are unrelated to the query, and none of them mention FRQ or its meaning in the workplace.
+q3 0 p6429 The passage is dedicated to the query.
+q39 0 p8935 :03:16:14:13:13:13:30:12:10:13:14:14:12:14:13:13:13:13:14:30:30:30:30:16:16:14:&#ÂÂÂâ
+:30:03:14:14:13:31:14:14:13:13:04:04:30:30:30:30:13:ÂÂÂâÂâ
+q39 0 p10888 I would rate this passage as a 0, as it is completely irrelevant to the query "What is the number of breast cancer deaths in the UK annually?" The passage appears to be a list of dates, and does not provide any information related to breast cancer deaths in the UK.
+q39 0 p3552     Score:
+q20 0 p2618  | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+q48 0 p5207 0
+
+The passage is about gender and sexuality, and it discusses the differences between sex and gender, as well as the various gender categories and identities. The query is about whether older adults can gain strength by training once a week, which is not related to the topic of the passage at all. Therefore, I would rate the relevance of the passage to the query as 0.
