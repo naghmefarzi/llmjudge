@@ -1,0 +1,30 @@
+q22 0 p10587  7 cialis 1 uk 1 cialis uk 30 50 1 cialis 1 cialis 1 cialis 24 50 uk 1 cialis 36 buy cialis the 10 cialis 10 cialis 2 cialis 1 cialis 36 how to 1 cialis 1 cialis 40 on 1 0 1 cialis 36 on 1 cialis 1 cialis 150 1 cialis 30 40s 1 cialis 1 cialis 1 30 1 cialis
+q22 0 p2434 Score: 0
+q4 0 p7603 =&#&#&# = &#=<&#: = (=&#,= &#=====72 =&=&#73= &#=, 72, </=, = | &=, </</"></72">= (=  =&#= : 72,= (9, : =  < </,&#,,,, :, =,
+q34 0 p8762 Based on the query "baltimore city school for the arts" and the passage provided, I would rate the relevance of the passage as 0. The passage appears to be a collection of random words and phrases, and does not seem to be related to the query at all.
+q31 0 p7051  passage of essays
+ academic essays
+
+q0 0 p9977 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+q0 0 p1037 . ; ; ;  ;.  ; ( ;. : . ; ;.. ; ( ; ;. ; ; ; T ; (;  ( ; . ; ;  ; ; ; : ( ; : ;;!? ;? (  ; ; ; ( ;;  ;.  : ( ; ;  ; and ; ( ; ;? : ;;.  :  ; ; ; ; ( ; ; ;  ; : : (
+q14 0 p3170 Based on the provided list of passages, I would rate the relevance of each passage to the query "who owns drs train fleet" as follows:
+
+1. Score: 0 (Irrelevant) - The passage is about audio plugins and has no connection to the query.
+2. Score: 0 (Irrelevant) - The passage is about audio plugins and has no connection to the query.
+3. Score: 0 (Irrelevant) - The passage is about audio plugins and has no
+q13 0 p8714 I would rate the passage as a 0, as it is completely irrelevant to the query "who played Sherrilyn Feeney". The passage appears to be a track and field meet results report, and does not mention Sherrilyn Feeney at all.
+q35 0 p9977 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+q30 0 p8935 â
+13:16:13:03:13:17:13:13:31:30:14:13:14:13:13:30:28 30:30:30:01:36 16:15:30:14:03:04:13:&#
+13:14:30:13:13:14:14:14:03:34Â&#0:30:14:00:13:03:12:17:15
+q9 0 p6807  on  On  On On
+
+   On   .  on     on on. On    On On.   On on   On- On      On  
+
+
+
+     on  On  On.. on on on   On  On on
+
+  On on  On    On On On on on. on  On
+
+ On On   On     

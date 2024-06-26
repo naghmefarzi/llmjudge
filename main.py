@@ -16,6 +16,7 @@ from typing import Tuple, List, Dict, Callable, NewType, Optional, Iterable
 from huggingface_hub import login
 from transformers import (AutoTokenizer,AutoModelForCausalLM,
                           TextStreamer,pipeline,BitsAndBytesConfig)
+
 import sys
 sys.path.append('.')
 
@@ -24,7 +25,8 @@ from model_utils import get_model_baseline
 from prompts import create_system_message
 from exam_question_generation import generate_question_set
 from data_processing import load_data_files, clean_files
-from baseline import process_test_qrel_baseline, process_test_qrel_baseline_only_qrel, process_test_iterative_prompts_only_qrel,  process_test_decomposed_prompts_only_qrel
+from baseline import (process_test_qrel_baseline, process_test_qrel_baseline_only_qrel, process_test_iterative_prompts_only_qrel,  
+                      process_test_decomposed_prompts_only_qrel,process_test_sunprompt_then_decomposed_only_qrel)
 from examline import process_exam_qrel
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -54,6 +56,7 @@ def main():
     parser.add_argument("--on_qrel",default=True,type=bool,help="true if you only supposed to run the method on query-passage pairs of qrel files")
     parser.add_argument("--iterative_prompts", type=bool, default=False, help="perform iterative prompting for relevance decomposition.")
     parser.add_argument("--decomposed_relavance", type=bool, default=False, help="perform prompts for relevance decomposition.")
+    parser.add_argument("--sunprompt_then_decomposed", type=bool, default=False, help="perform sun prompt then relevance rate decomposition.")
     
     args = parser.parse_args()
 
@@ -84,6 +87,11 @@ def main():
             
     # WHAT WE SUPPOSED TO HAVE :
     else:
+        if args.sunprompt_then_decomposed:
+            print("**process_test_sunprompt_then_decomposed_only_qrel**")
+            pipe = get_model_baseline(args.model_id)
+            process_test_sunprompt_then_decomposed_only_qrel(test_qrel, docid_to_doc, qid_to_query, args.result_file_path, pipe ,system_message)
+
         if args.decomposed_relavance:
             print("**decomposed prompting setting**\n")
             pipe = get_model_baseline(args.model_id)

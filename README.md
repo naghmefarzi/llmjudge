@@ -30,5 +30,19 @@ python3 cohens_kappa_multiclass.py "./data/llm4eval_dev_qrel_2024.txt" "./result
 
 
 
+sun then decomposed:
+python3 main.py --model_id "meta-llama/Meta-Llama-3-8B-Instruct" --test_qrel_path "./data/llm4eval_dev_qrel_2024.txt" --queries_path "./data/llm4eval_query_2024.txt" --docs_path "./data/llm4eval_document_2024.jsonl" --result_file_path "./results/dev_sun_then_decomposed_relavance_qrel.txt" --sunprompt_then_decomposed True
+
+
 analysis command:
 python3 analysis_qrels.py "./data/llm4eval_dev_qrel_2024.txt" "./results/llm4eval_dev_qrel_results_baseline.txt" "./analysis/dev_baseline_analysis.txt"
+
+python3 analysis_qrels.py "./data/llm4eval_dev_qrel_2024.txt" "./results/dev_baseline_qrel_prompt order: 3210.txt" "./analysis/dev_baseline_qrel_prompt order: 3210.txt"
+
+
+
+
+
+
+
+python3 main.py --model_id "meta-llama/Meta-Llama-3-8B-Instruct" --test_qrel_path "./data/llm4eval_test_qrel_2024.txt" --queries_path "./data/llm4eval_query_2024.txt" --docs_path "./data/llm4eval_document_2024.jsonl" --result_file_path "./results/test_decomposed_relavance_qrel.txt" --score_order_in_prompt "3210" --decomposed_relavance True

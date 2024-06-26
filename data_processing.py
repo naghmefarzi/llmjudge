@@ -34,17 +34,6 @@ def get_all_query_id_to_query(query_path:str) -> Dict[str,str]:
     qid_to_query = dict(zip(query_data.qid, query_data.qtext))
     return qid_to_query
 
-def load_documents_in_chunks(docs_path, chunk_size):
-    docid_to_doc = {}
-    with jsonlines.open(docs_path, 'r') as document_file:
-        for obj in document_file:
-            docid = obj['docid']
-            docid_to_doc[docid] = obj['doc']
-            if len(docid_to_doc) >= chunk_size:
-                yield docid_to_doc
-                docid_to_doc = {}
-        if docid_to_doc:  # Yield the remaining documents if any
-            yield docid_to_doc
             
 def process_documents_in_chunks(docid_to_doc, chunk_size):
     doc_keys = list(docid_to_doc.keys())

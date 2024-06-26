@@ -21,7 +21,7 @@ import sys
 sys.path.append('.')
 
 from model_utils import *
-from relevance_scoring import get_relevance_score_baseline, write_top_k_results, process_documents, get_relevance_score_iterative_prompts, get_relevance_score_decomposed_prompts
+from relevance_scoring import get_relevance_score_baseline, write_top_k_results, process_documents, get_relevance_score_iterative_prompts, get_relevance_score_decomposed_prompts, sun_prompt_then_decomposed
 from data_processing import load_data_files, clean_files, process_documents_in_chunks
 from prompts import *
 from exam_question_generation import generate_question_set
@@ -149,6 +149,62 @@ def process_test_decomposed_prompts_only_qrel(test_qrel, docid_to_doc, qid_to_qu
             try:
                 # Get relevance score
                 pred_score, decomposed_scores_list_for_one_query = get_relevance_score_decomposed_prompts(query=qid_to_query[qidx], passage=docid_to_doc[docidx],pipeline=pipeline,log_file_path=logs_path,system_message=system_message,qidx=qidx,docidx=docidx)
+                decomposed_scores[(qidx,docidx)] = decomposed_scores_list_for_one_query
+            except RuntimeError as e:
+                if 'CUDA out of memory' in str(e):
+                    error = f"CUDA out of memory error for docid {docidx}. Skipping this document."
+                    print(error)
+                    cuda_errors_file.write(error)
+                    
+                    result_file.write(f"{qidx} 0 {docidx} 0\n")
+                    
+                    continue
+                else:
+                    raise e
+            
+            # Debugging: Print prompt and score once
+            if not hasattr(process_test_qrel_baseline_only_qrel, "called"):
+                process_test_qrel_baseline_only_qrel.called = True
+                print(f"{qidx} 0 {docidx} {pred_score}\n")
+            try:
+                int_pred_score = int(pred_score)
+                if 0<=int_pred_score<=3:
+                    # Write result to file
+                    result_file.write(f"{qidx} 0 {docidx} {pred_score}\n")
+                else:
+                    result_file.write(f"{qidx} 0 {docidx} 0\n")
+                
+            except:
+                generation_errors_file.write(f"{qidx} 0 {docidx} {pred_score}\n")
+                
+                print(f"pred score for {qidx} and {docidx} is not a number it is: {pred_score}")
+                result_file.write(f"{qidx} 0 {docidx} 0\n")
+                
+                continue
+        # Convert tuples to strings
+        decomposed_scores_str_keys = {str(k): v for k, v in decomposed_scores.items()}
+
+        # Save to a JSON file
+        with open(decomposed_path, 'w') as file:
+            json.dump(decomposed_scores_str_keys, file, indent=4)
+
+
+
+def process_test_sunprompt_then_decomposed_only_qrel(test_qrel, docid_to_doc, qid_to_query, result_path:str, pipeline ,system_message:str):
+    generation_path = result_path.replace("results","generation_errors")
+    logs_path = result_path.replace("results","logs").replace(".txt",".json") 
+    decomposed_path = result_path.replace("results","decomposed_scores").replace(".txt",".json") 
+    cuda_errors_path = result_path.replace("results","cuda_errors")
+    decomposed_scores = {}
+    
+    with open(result_path, 'w') as result_file, open(generation_path, 'w') as generation_errors_file, open(cuda_errors_path,"w") as cuda_errors_file:
+        for eachline in tqdm(test_qrel.itertuples(index=True)):
+            qidx = eachline.qid
+            docidx = eachline.docid
+
+            try:
+                # Get relevance score
+                pred_score, decomposed_scores_list_for_one_query = sun_prompt_then_decomposed(query=qid_to_query[qidx], passage=docid_to_doc[docidx],pipeline=pipeline,log_file_path=logs_path,system_message=system_message,qidx=qidx,docidx=docidx)
                 decomposed_scores[(qidx,docidx)] = decomposed_scores_list_for_one_query
             except RuntimeError as e:
                 if 'CUDA out of memory' in str(e):
