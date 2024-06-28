@@ -66,7 +66,8 @@ Proceed with the evaluation.\n"""
     decomposed_criterias = {
         "Exactness":" How precisely does the passage answer the query",
         "Topicality": "Is the passage about the same subject as the query",
-        "Depth": "How much detail does the passage provide about the topic",
+        # "Depth": "How much detail does the passage provide about the topic",
+        "Coverage": "how much of the passage is dedicated to discussing the query and its related topics.",
         "Contextual Fit": "Does the passage provide relevant background or context",
     }
     prompt = f'''
@@ -100,9 +101,9 @@ Proceed with the evaluation.\n"""
         }
     
             
-    criteria_prompt = '''Please rate how the given passage is relevant to the query. The output must be only a score that indicate how relevant they are.\n'''
+    criteria_prompt = "Please rate how the given passage is relevant to the query by considering the provided grades for exactness, topicality, coverage, and contextual fit. The output should be only a score indicating the relevance.\n" 
     to_ask_prompt = criteria_prompt + prompt + '''\nScore:'''
-    score = get_relevance_score_baseline(prompt,pipeline,system_message)
+    score = get_relevance_score_baseline(to_ask_prompt,pipeline,system_message)
     num_score = find_first_number(score)
     if not hasattr(get_relevance_score_iterative_prompts,"called"):
             get_relevance_score_iterative_prompts.called =True
@@ -252,6 +253,50 @@ Question: {query} Passage: {passage} Answer:'''
     return num_score , decomposed_scores_dict
             
 
+def make_query_out_of_passage_relevance(query,passage,pipeline,log_file_path,qidx,docidx,passage_to_predicted_query):
+    if docidx not in passage_to_predicted_query:
+        query_generator_prompt = f'''Please identify the search query that best corresponds to the following passage. Keep your response concise.\n Passage: {passage}'''
+        generated_query = get_relevance_score_baseline(query_generator_prompt,pipeline,"you are a query generator. for example having this document:'Categories: Dogs. Article Summary X. If your puppy is starting to get teeth, it's probably between 3 and 4 weeks old. At 8 weeks of age, your puppy will have 28 baby teeth. For an adult dog, expect 1 or 2-year-olds to have white teeth, while 3-year-olds may have signs of tooth decay, such as yellow and brown tartar.'\n you should predict a query such as : 'dog age by teeth'. ")
+        passage_to_predicted_query[docidx] = generated_query
+    else:
+        generated_query = passage_to_predicted_query[docidx]
+    
+    
+    
+    rel_prompt = f'''Please rate the similarity between the following queries:
+
+                        '{generated_query}'
+
+                        and
+
+                        '{query}'
+
+                        3: Highest similarity
+
+                        2: Fairly similar
+
+                        1: Minor relevance
+
+                        0: Not similar'''
+    
+    
+    score = get_relevance_score_baseline(rel_prompt,pipeline,"You are a similarity evaluator agent. Please rate the similarity between the two items on a scale from 0 to 3.")
+    num_score = find_first_number(score)
+    inf = {"qidx":qidx,
+                   "docidx":docidx,
+                   "query": query,
+                   "passage": passage,
+                   "generated_query":generated_query,
+                   "prompt":rel_prompt,
+                   "llm_response":score,
+                   "final_relevance_score":num_score
+                   
+            
+        }
+    with open(log_file_path,"a") as f:
+        json.dump(inf, f)
+    return num_score,passage_to_predicted_query
+ 
  
  
 def get_relevance_score_decomposed_prompts(query,passage,pipeline,log_file_path,system_message,qidx,docidx):
@@ -269,7 +314,7 @@ def get_relevance_score_decomposed_prompts(query,passage,pipeline,log_file_path,
         "Exactness":" How precisely does the passage answer the query",
         "Topicality": "Is the passage about the same subject as the whole query (not only a single word of it)",
         # "Depth": "How much detail does the passage provide about the topic",
-        "Coverage": "how much of the passage is dedicated to discussing the query and its related topics? Rate the coverage on a scale from 0 to 3.",
+        "Coverage": "how much of the passage is dedicated to discussing the query and its related topics.",
         "Contextual Fit": "Does the passage provide relevant background or context",
     }
     prompt = f'''Query: {query}\nPassage: {passage}\n'''
@@ -284,7 +329,7 @@ def get_relevance_score_decomposed_prompts(query,passage,pipeline,log_file_path,
         num_score = find_first_number(score)
         prompt_+=f"\n{list(decomposed_criterias.keys())[i]}: {num_score}"
         decomposed_scores_dict[list(decomposed_criterias.keys())[i]]=num_score
-        if not hasattr(get_relevance_score_iterative_prompts,"called"):
+        if not hasattr(get_relevance_score_decomposed_prompts,"called"):
             # get_relevance_score_iterative_prompts.called =True
             print(system_message_decomposition)
             print(to_ask_prompt)
@@ -300,12 +345,12 @@ def get_relevance_score_decomposed_prompts(query,passage,pipeline,log_file_path,
         }
     
             
-    criteria_prompt = '''Please rate how the given passage is relevant to the query. The output must be only a score that indicate how relevant they are.\n'''
+    criteria_prompt = '''Please rate how the given passage is relevant to the query based on the given scores. The output must be only a score that indicate how relevant they are.\n'''
     to_ask_prompt = criteria_prompt + prompt_ + '''\nScore:'''
-    score = get_relevance_score_baseline(prompt,pipeline,system_message)
+    score = get_relevance_score_baseline(to_ask_prompt, pipeline, system_message)
     num_score = find_first_number(score)
-    if not hasattr(get_relevance_score_iterative_prompts,"called"):
-            get_relevance_score_iterative_prompts.called =True
+    if not hasattr(get_relevance_score_decomposed_prompts,"called"):
+            get_relevance_score_decomposed_prompts.called =True
             print("******")
             print(system_message)
             print(to_ask_prompt)

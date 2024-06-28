@@ -16,10 +16,10 @@ python3 cohens_kappa_multiclass.py "./data/llm4eval_dev_qrel_2024.txt" "./result
 
 command on iterative prompting with 3210 as order:
 
-python3 main.py --model_id "meta-llama/Meta-Llama-3-8B-Instruct" --test_qrel_path "./data/llm4eval_dev_qrel_2024.txt" --queries_path "./data/llm4eval_query_2024.txt" --docs_path "./data/llm4eval_document_2024.jsonl" --result_file_path "./results/dev_iterative_prompting_qrel.txt" --score_order_in_prompt "3210" --iterative_prompts True
+python3 main.py --model_id "meta-llama/Meta-Llama-3-8B-Instruct" --test_qrel_path "./data/llm4eval_dev_qrel_2024.txt" --queries_path "./data/llm4eval_query_2024.txt" --docs_path "./data/llm4eval_document_2024.jsonl" --result_file_path "./results/dev_iterative_prompting_qrel_2.txt" --score_order_in_prompt "3210" --iterative_prompts True
 
 
-python3 cohens_kappa_multiclass.py "./data/llm4eval_dev_qrel_2024.txt" "./results/dev_iterative_prompting_qrel.txt" "./analysis/dev_iterative_prompting_qrel.txt"
+python3 cohens_kappa_multiclass.py "./data/llm4eval_dev_qrel_2024.txt" "./results/dev_iterative_prompting_qrel_2.txt" "./analysis/dev_iterative_prompting_qrel_2.txt"
 
 
 
@@ -43,6 +43,40 @@ python3 analysis_qrels.py "./data/llm4eval_dev_qrel_2024.txt" "./results/dev_bas
 
 
 
-
+Sun + decomposed:
 
 python3 main.py --model_id "meta-llama/Meta-Llama-3-8B-Instruct" --test_qrel_path "./data/llm4eval_test_qrel_2024.txt" --queries_path "./data/llm4eval_query_2024.txt" --docs_path "./data/llm4eval_document_2024.jsonl" --result_file_path "./results/test_decomposed_relavance_qrel.txt" --score_order_in_prompt "3210" --decomposed_relavance True
+
+
+python3 analysis_qrels.py "./data/llm4eval_dev_qrel_2024.txt" "./results/dev_sun_then_decomposed_relavance_qrel.txt" "./analysis/dev_sun_then_decomposed_relavance_qrel.txt"
+
+
+python3 cohens_kappa_multiclass.py "./data/llm4eval_dev_qrel_2024.txt" "./results/dev_sun_then_decomposed_relavance_qrel.txt" "./analysis/dev_sun_then_decomposed_relavance_qrel.txt"
+
+
+
+
+
+dev_iterative_prompting_qrel_2 - > coverage added, to ask prompt got correct and temp of the model changed
+
+
+
+
+
+
+sum of decomposed prompts with Depth as one criteria
+
+python3 cohens_kappa_multiclass.py "./data/llm4eval_dev_qrel_2024.txt" "./results/dev_sum_of_decomposed_prompts.txt" "./analysis/dev_sum_of_decomposed_prompts.txt"
+
+python3 analysis_qrels.py "./data/llm4eval_dev_qrel_2024.txt" "./results/dev_sum_of_decomposed_prompts.txt" "./analysis/dev_sum_of_decomposed_prompts_analysis.txt"
+
+python3 cohens_kappa_multiclass.py "./data/llm4eval_dev_qrel_2024.txt" "./results/llm4eval_dev_qrel_exam_rubric.txt" "./analysis/llm4eval_dev_qrel_exam_rubric.txt"
+
+
+
+
+
+python3 main.py --model_id "meta-llama/Meta-Llama-3-8B-Instruct" --test_qrel_path "./data/llm4eval_test_qrel_2024.txt" --queries_path "./data/llm4eval_query_2024.txt" --docs_path "./data/llm4eval_document_2024.jsonl" --result_file_path "./results/dev_gen_query_similarity_qrel.txt" --gen_query_similarity True
+
+python3 cohens_kappa_multiclass.py "./data/llm4eval_dev_qrel_2024.txt" "./results/dev_gen_query_similarity_qrel.txt" "./analysis/dev_gen_query_similarity_qrel.txt"
+python3 analysis_qrels.py "./data/llm4eval_dev_qrel_2024.txt" "./results/dev_gen_query_similarity_qrel.txt" "./analysis/dev_gen_query_similarity_qrel.txt"

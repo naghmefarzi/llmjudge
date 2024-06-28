@@ -3,6 +3,8 @@ from data_processing import *
 from typing import Tuple, List, Dict, Callable, NewType, Optional, Iterable
 import pandas as pd
 import json
+import jsonlines
+
 
 import gzip
 
@@ -12,18 +14,18 @@ q_path = "./data/llm4eval_query_2024.txt"
 
 
 def get_all_query_id_to_query(query_path:str,list_unique_qids:List['str']) -> Dict[str,str]:
-    qs=[]
+    qs={}
     query_data = pd.read_csv(query_path, sep="\t", header=None, names=['qid', 'qtext'])
     qid_to_query = dict(zip(query_data.qid, query_data.qtext))
     for q in qid_to_query.items():
         print(qs)
         if q[0] in list_unique_qids:
-            qs.append({q[0]:q[1]})
+            qs[q[0]]=q[1]
     return qs
-def make_query_jsonl_file(path,unique_qids):
-    with gzip.open(path, 'w') as fout:
+def make_query_json_file(path,unique_qids):
+    with open(path, 'w') as fout:
         data = get_all_query_id_to_query(q_path,unique_qids)
-        fout.write(json.dumps(data).encode('utf-8'))  
+        json.dump(data,fout)
         
 dev_path_qrel = "./data/llm4eval_dev_qrel_2024.txt"
 test_path_qrel = "./data/llm4eval_test_qrel_2024.txt"
@@ -31,10 +33,10 @@ dev_qrel = pd.read_csv(dev_path_qrel, sep=" ", header=None, names=['qid', 'Q0', 
 unique_dev_qids = list(set(dev_qrel['qid']))
 test_qrel = pd.read_csv(test_path_qrel, sep=" ", header=None, names=['qid', 'Q0', 'docid','rel_score'])
 unique_test_qids = list(set(test_qrel['qid']))        
-path = "llm4judge_dev_queries.jsonl.gz"
-make_query_jsonl_file(path,unique_dev_qids)
-path = "llm4judge_test_queries.jsonl.gz"
-make_query_jsonl_file(path,unique_test_qids)
+path = "llm4judge_dev_queries.json"
+make_query_json_file(path,unique_dev_qids)
+path = "llm4judge_test_queries.json"
+make_query_json_file(path,unique_test_qids)
     
     
     
@@ -283,7 +285,7 @@ def parseQueryWithFullParagraphs(file_path:Path) -> List[QueryWithFullParagraphL
 
 def dumpQueryWithFullParagraphList(queryWithFullParagraph:QueryWithFullParagraphList)->str:
     '''Write `QueryWithFullParagraphList` to jsonl.gz'''
-    return  json.dumps ([queryWithFullParagraph.queryId,[p.dict(exclude_none=True) for p in queryWithFullParagraph.paragraphs]])+"\n"
+    return  json.dumps ([queryWithFullParagraph.queryId,[p for p in queryWithFullParagraph.paragraphs]])+"\n"
 
 def writeQueryWithFullParagraphs(file_path:Path, queryWithFullParagraphList:List[QueryWithFullParagraphList]) :
     # Open the gzipped file
@@ -291,12 +293,62 @@ def writeQueryWithFullParagraphs(file_path:Path, queryWithFullParagraphList:List
         # Iterate over each line in the file
         file.writelines([dumpQueryWithFullParagraphList(x) for x in queryWithFullParagraphList])
 
+def get_all_docid_to_doc(docs_path: str = './data/llm4eval_document_2024.jsonl') -> Dict[str,str]:
+    docid_to_doc = dict()
+    with jsonlines.open(docs_path, 'r') as document_file:
+        for obj in document_file:
+            docid_to_doc[obj['docid']] = obj['doc']
+    return docid_to_doc
 
+def get_all_query_id_to_query(query_path:str) -> Dict[str,str]:
+    query_data = pd.read_csv(query_path, sep="\t", header=None, names=['qid', 'qtext'])
+    qid_to_query = dict(zip(query_data.qid, query_data.qtext))
+    return qid_to_query
+
+def load_data_files(docs_path: str, queries_path: str, test_qrel_path : str):
+    docid_to_doc = get_all_docid_to_doc(docs_path)
+    qid_to_query = get_all_query_id_to_query(queries_path)
+    test_qrel = pd.read_csv(test_qrel_path, sep=" ", header=None, names=['qid', 'Q0', 'docid','rel_score'])
+    return docid_to_doc, qid_to_query, test_qrel
 
 def main():
     """Entry point for the module."""
-    x = parseQueryWithFullParagraphs("./benchmarkY3test-qrels-with-text.jsonl.gz")
-    print(x[0])
+    docs_path = "./data/llm4eval_dev_qrel_2024.txt"
+    queries_path = "./data/llm4eval_query_2024.txt"
+    test_qrel_path = "./data/llm4eval_document_2024.jsonl"
+    docid_to_doc, qid_to_query, test_qrel = load_data_files(docs_path, queries_path, test_qrel_path)
+    input_format = []
+    qid_and_all_docids = {}
+    for row in test_qrel.itertuples(index=False):
+        qid = row.qid
+        Q0 = row.Q0
+        docid = row.docid
+        rel_score = row.rel_score
+        
+        if qid not in qid_and_all_docids:
+            qid_and_all_docids[qid] = [(docid,rel_score)]
+        else:
+            qid_and_all_docids[qid].append((docid,rel_score))
+                
+    for qid in qid_and_all_docids:
+        paragraphs = []
+        for pair in qid_and_all_docids[qid]:
+            docid,rel_score = pair
+            judgments = Judgment(paragraphId = docid,query = qid,relevance = int(rel_score),titleQuery = qid)
+            paragraph_data = ParagraphData(judgments=judgments)
+            paragraph = FullParagraphData(paragraph_id = docid,text = docid_to_doc[docid],paragraph = {},paragraph_data = paragraph_data )
+            paragraphs.append(paragraph)
+        q = QueryWithFullParagraphList(queryId=qid,paragraphs=paragraphs)
+        input_format.append(q)
+    with gzip.open("llm4judge_dev_exam_fromat.jsonl.gz", 'wt', encoding='utf-8') as file:
+        # Iterate over each line in the file
+        file.writelines([dumpQueryWithFullParagraphList(x) for x in input_format])
+            
+
+    
+
+    
+    
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,3 @@
+first qrel file is: ./data/llm4eval_dev_qrel_2024.txt
+second qrel file is: ./results/dev_sum_of_decomposed_prompts.txt
+Cohen's kappa score: 0.23486723484404193

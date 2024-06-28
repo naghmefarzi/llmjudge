@@ -1,0 +1,6 @@
+Interannotation Agreement:
+Total agreements: 7263
+Cohen's Kappa: 0.10900581381680274
+
+Average number of documents judged among top 10: 10.00, among top 1000: 290.52 
+p@100: 0.3508

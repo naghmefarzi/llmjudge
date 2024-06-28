@@ -26,7 +26,8 @@ from prompts import create_system_message
 from exam_question_generation import generate_question_set
 from data_processing import load_data_files, clean_files
 from baseline import (process_test_qrel_baseline, process_test_qrel_baseline_only_qrel, process_test_iterative_prompts_only_qrel,  
-                      process_test_decomposed_prompts_only_qrel,process_test_sunprompt_then_decomposed_only_qrel)
+                      process_test_decomposed_prompts_only_qrel,process_test_sunprompt_then_decomposed_only_qrel,
+                      process_passages_based_on_gen_query)
 from examline import process_exam_qrel
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -57,6 +58,8 @@ def main():
     parser.add_argument("--iterative_prompts", type=bool, default=False, help="perform iterative prompting for relevance decomposition.")
     parser.add_argument("--decomposed_relavance", type=bool, default=False, help="perform prompts for relevance decomposition.")
     parser.add_argument("--sunprompt_then_decomposed", type=bool, default=False, help="perform sun prompt then relevance rate decomposition.")
+    parser.add_argument("--gen_query_similarity", type=bool, default=False, help="perform gen_query_similarity.")
+    
     
     args = parser.parse_args()
 
@@ -92,12 +95,25 @@ def main():
             pipe = get_model_baseline(args.model_id)
             process_test_sunprompt_then_decomposed_only_qrel(test_qrel, docid_to_doc, qid_to_query, args.result_file_path, pipe ,system_message)
 
-        if args.decomposed_relavance:
+        elif args.decomposed_relavance:
             print("**decomposed prompting setting**\n")
             pipe = get_model_baseline(args.model_id)
             process_test_decomposed_prompts_only_qrel(test_qrel, docid_to_doc, qid_to_query, args.result_file_path, pipe ,system_message)
 
-        if not args.iterative_prompts:
+
+
+        elif args.gen_query_similarity:
+                    print("*********gen query x query -> similarity")
+                    pipe = get_model_baseline(args.model_id)
+                    process_passages_based_on_gen_query(test_qrel, docid_to_doc, qid_to_query, args.result_file_path, pipe)
+        
+        elif args.iterative_prompts:
+            #EXPERIMENT ON DECOMPOSING "RELEVANCE" with ITERATIVE PROMPTS
+            print("**iterative prompting setting**\n")
+            pipe = get_model_baseline(args.model_id)
+            process_test_iterative_prompts_only_qrel(test_qrel, docid_to_doc, qid_to_query, args.result_file_path, pipe ,system_message)
+
+        else:
             # EXPERIMENT ON ORDER OF SCORING ONLY
             pipe = get_model_baseline(args.model_id)
             if "txt" in args.result_file_path:
@@ -106,14 +122,8 @@ def main():
                 result_path =  args.result_file_path.replace(".run",f"_prompt order: {args.score_order_in_prompt}.run")
 
             process_test_qrel_baseline_only_qrel(test_qrel, docid_to_doc, qid_to_query, result_path, pipe,  system_message=system_message)
-        elif args.iterative_prompts:
-            #EXPERIMENT ON DECOMPOSING "RELEVANCE" with ITERATIVE PROMPTS
-            print("**iterative prompting setting**\n")
-            pipe = get_model_baseline(args.model_id)
-            process_test_iterative_prompts_only_qrel(test_qrel, docid_to_doc, qid_to_query, args.result_file_path, pipe ,system_message)
-
         
-    
+            
             
                 
             

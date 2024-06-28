@@ -1,0 +1,3 @@
+first qrel file is: ./data/llm4eval_dev_qrel_2024.txt
+second qrel file is: ./results/llm4eval_dev_qrel_exam_rubric.txt
+Cohen's kappa score: 0.13354480311171968

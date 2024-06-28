@@ -1,0 +1,3 @@
+first qrel file is: ./data/llm4eval_dev_qrel_2024.txt
+second qrel file is: ./results/dev_sun_then_decomposed_relavance_qrel.txt
+Cohen's kappa score: 0.18101108684922063
