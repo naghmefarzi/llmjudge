@@ -1,55 +1,112 @@
 import pandas as pd
 import json
 import numpy as np
-from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import classification_report
+from sklearn.model_selection import StratifiedKFold
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import cohen_kappa_score, make_scorer
 
-
+# Load the data
 dev_path = "./data/llm4eval_dev_qrel_2024.txt"
 dev_df = pd.read_csv(dev_path, sep=" ", header=None, names=['qid', 'Q0', 'docid','rel_score'])
-score_counts = dev_df['rel_score'].value_counts().sort_index()
-
-# Display the counts
-# print("Relevance Score Counts:")
-# print(score_counts)
+path_for_decomposed_scores = "./decomposed_scores/dev_decomposed_relavance_qrel.json"
+with open(path_for_decomposed_scores, "r") as f:
+    dictionary = json.load(f)
 
 
+# Function to create DataFrame from decomposed scores
+def make_df_of_decomposed_scores(df):
+    rows = []
+    for i in range(len(df)):
+        try:
+            sample = str((df.loc[i].qid, df.loc[i].docid))
+            label = df.loc[i].rel_score
+            values = list(dictionary[sample].values())
+            row = [sample, int(values[0]), int(values[1]), int(values[2]), int(values[3]), label]
+        except KeyError:
+            row = [sample, 0, 0, 0, 0, label]
+        rows.append(row)
+    
+    new_df = pd.DataFrame(rows, columns=['qid_docid', 'Exactness', 'Topicality', 'Depth', 'Contextual Fit', 'rel_label'])
+    return new_df
 
-# Separate data based on relevance scores
-df_0 = dev_df[dev_df['rel_score'] == 0]
-df_1 = dev_df[dev_df['rel_score'] == 1]
-df_2 = dev_df[dev_df['rel_score'] == 2]
-df_3 = dev_df[dev_df['rel_score'] == 3]
+# Create DataFrame from decomposed scores
+train_df = make_df_of_decomposed_scores(dev_df)
+
+# Split features and labels
+X = train_df.iloc[:, 1:-1]
+y = train_df.iloc[:, -1]
+
+# Define the models
+models = {
+    'Random Forest': RandomForestClassifier(),
+    'Decision Tree': DecisionTreeClassifier(),
+    'Logistic Regression': LogisticRegression(max_iter=1000)
+}
+
+# Perform stratified cross-validation and evaluate Cohen's kappa
+skf = StratifiedKFold(n_splits=5)
+results = {}
+
+for model_name, model in models.items():
+    kappa_scores = []
+    for train_index, test_index in skf.split(X, y):
+        X_train, X_test = X.iloc[train_index], X.iloc[test_index]
+        y_train, y_test = y.iloc[train_index], y.iloc[test_index]
+        
+        model.fit(X_train, y_train)
+        y_pred = model.predict(X_test)
+        kappa = cohen_kappa_score(y_test, y_pred)
+        kappa_scores.append(kappa)
+    
+    results[model_name] = kappa_scores
+
+# Print average Cohen's kappa and standard deviation for each model
+for model_name, kappa_scores in results.items():
+    print(f'{model_name} Cohen\'s kappa: {np.mean(kappa_scores):.2f} ± {np.std(kappa_scores):.2f}')
+
+# Train each model on the entire dataset and print Cohen's kappa on the entire dataset
+for model_name, model in models.items():
+    model.fit(X, y)
+    y_pred = model.predict(X)
+    kappa = cohen_kappa_score(y, y_pred)
+    print(f'{model_name} Cohen\'s kappa on entire dataset: {kappa:.2f}')
 
 
 
-# Determine the desired sample size for training (adjust as needed)
-sample_size_train = 1000  # For example, select 500 instances per relevance score for training
-print(len(df_0))
-print(len(df_1))
-print(len(df_2))
-print(len(df_3))
+# # Separate data based on relevance scores
+# df_0 = dev_df[dev_df['rel_score'] == 0]
+# df_1 = dev_df[dev_df['rel_score'] == 1]
+# df_2 = dev_df[dev_df['rel_score'] == 2]
+# df_3 = dev_df[dev_df['rel_score'] == 3]
 
-# Sample instances from each relevance score group for training
-df_0_sampled = df_0.sample(n=int(sample_size_train*(len(df_0)/len(dev_df))), random_state=2)
-df_1_sampled = df_1.sample(n=int(sample_size_train*(len(df_1)/len(dev_df))), random_state=2)
-df_2_sampled = df_2.sample(n=int(sample_size_train*(len(df_2)/len(dev_df))), random_state=2)
-df_3_sampled = df_3.sample(n=int(sample_size_train*(len(df_3)/len(dev_df))), random_state=2)
 
-# Concatenate the sampled dataframes for training
-train_df = pd.concat([df_0_sampled, df_1_sampled, df_2_sampled, df_3_sampled])
 
-# Create a test set with unbalanced data
-test_df = dev_df.drop(train_df.index)
+# # Determine the desired sample size for training (adjust as needed)
+# sample_size_train = 1000  # For example, select 500 instances per relevance score for training
+# print(len(df_0))
+# print(len(df_1))
+# print(len(df_2))
+# print(len(df_3))
 
-print(len(df_0_sampled))
-print(len(df_1_sampled))
-print(len(df_2_sampled))
-print(len(df_3_sampled))
+# # Sample instances from each relevance score group for training
+# df_0_sampled = df_0.sample(n=int(sample_size_train*(len(df_0)/len(dev_df))), random_state=2)
+# df_1_sampled = df_1.sample(n=int(sample_size_train*(len(df_1)/len(dev_df))), random_state=2)
+# df_2_sampled = df_2.sample(n=int(sample_size_train*(len(df_2)/len(dev_df))), random_state=2)
+# df_3_sampled = df_3.sample(n=int(sample_size_train*(len(df_3)/len(dev_df))), random_state=2)
 
-train_df = train_df.sample(frac=1, random_state=42).reset_index(drop=True)
-test_df = test_df.sample(frac=1, random_state=42).reset_index(drop=True)
+# # Concatenate the sampled dataframes for training
+# train_df = pd.concat([df_0_sampled, df_1_sampled, df_2_sampled, df_3_sampled])
+
+# # Create a test set with unbalanced data
+# test_df = dev_df.drop(train_df.index)
+
+# print(len(df_0_sampled))
+# print(len(df_1_sampled))
+# print(len(df_2_sampled))
+# print(len(df_3_sampled))
+
+# train_df = train_df.sample(frac=1, random_state=42).reset_index(drop=True)
+# test_df = test_df.sample(frac=1, random_state=42).reset_index(drop=True)
 # Print the size of each split to verify balance
 # print("Train set sizes:")
 # print(train_df['rel_score'].value_counts())

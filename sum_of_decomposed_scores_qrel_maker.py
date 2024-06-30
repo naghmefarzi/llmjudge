@@ -1,14 +1,14 @@
 import pandas as pd
 import json
 
-dev_path = "./data/llm4eval_dev_qrel_2024.txt"
+dev_path = "./data/llm4eval_test_qrel_2024.txt"
 df = pd.read_csv(dev_path, sep=" ", header=None, names=['qid', 'Q0', 'docid','rel_score'])
 
-path_for_decomposed_scores = "./decomposed_scores/dev_decomposed_relavance_qrel.json"
+path_for_decomposed_scores = "./decomposed_scores/test_decomposed_relavance_qrel.json"
 with open(path_for_decomposed_scores,"r") as f:
     dictionary = json.load(f)
     
-result_decomposed_sum_path = "./results/dev_sum_of_decomposed_prompts.txt" 
+result_decomposed_sum_path = "./results/test_sum_of_decomposed_prompts.txt" 
 with open(result_decomposed_sum_path, "w") as result_file:
     
     for i in range(len(df)):

@@ -275,7 +275,7 @@ def make_query_out_of_passage_relevance(query,passage,pipeline,log_file_path,qid
 
                         2: Fairly similar
 
-                        1: Minor relevance
+                        1: Minor similarity
 
                         0: Not similar'''
     
