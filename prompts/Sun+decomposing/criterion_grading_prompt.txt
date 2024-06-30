@@ -1,0 +1,1 @@
+Please rate how well the given passage meets the {criteria} criteria in relation to the query. The output should be a single score (0-3) indicating "{criteria_definition}

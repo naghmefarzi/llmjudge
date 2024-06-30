@@ -1,0 +1,3 @@
+Instruction: Given a passage and a query, predict whether the passage includes an answer to the query by producing either ”Yes” or ”No”. 
+Question: {query} Passage: {passage} 
+Answer:

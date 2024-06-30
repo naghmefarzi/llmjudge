@@ -1,0 +1,1 @@
+You are a similarity evaluator agent. Please rate the similarity between the two items on a scale from 0 to 3.

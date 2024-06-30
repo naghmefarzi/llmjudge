@@ -1,0 +1,9 @@
+Please rate the similarity between the following
+queries:
+{Generated Query}
+and
+{Original Query}
+3: Highest similarity
+2: Fairly similar
+1: Minor similarity
+0: Not similar

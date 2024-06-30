@@ -1,0 +1,5 @@
+Please assess how well the provided passage meets specific criteria in relation to the query. Use the following scoring scale (0-3) for evaluation: 
+3: Highly relevant / Fully satisfies the criterion. 
+2:Fairly relevant / Adequately addresses the criterion. 
+1: Marginally relevant / Partially addresses the criterion. 
+0: Not relevant at all / No information provided.

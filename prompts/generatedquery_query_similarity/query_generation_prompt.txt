@@ -1,0 +1,1 @@
+Please identify the search query that best corresponds to the following passage. Keep your response concise. Passage: {passage}.

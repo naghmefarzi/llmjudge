@@ -1,0 +1,6 @@
+The given passage is irrelevant to the query, please rate how irrelevant it is to the query. The output must be only a score (0 or 1) that indicates how irrelevant they are.
+Query: {query}
+Passage: {passage}
+
+Topicality: {"Topicality predicted score"}
+Contextual Fit: {"Contextual predicted score"}

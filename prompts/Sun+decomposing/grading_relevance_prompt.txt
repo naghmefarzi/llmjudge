@@ -1,0 +1,6 @@
+The given passage is relevant to the query, please rate how relevant it is to the query. The output must be only a score (2 or 3) that indicates how relevant they are.
+Query: {query}
+Passage: {passage}
+
+Exactness: {"Exactness predicted score"}
+Coverage: {"Coverage predicted score"}

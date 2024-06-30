@@ -61,9 +61,9 @@ def create_system_message_for_non_rel(order_str):
 
     }
     ordered_descriptions = "\n    ".join(descriptions[i] for i in order)
-    prompt = f"""You are a search quality rater evaluating the relevance of passages. Given a query and passage, you must provide a score on an integer scale of 0 to 3 with the following meanings:\n
-    {ordered_descriptions}
-    Assume that you are writing an answer to the query. If the passage seems to be related to the query but does not include any answer to the query, mark it 1. If you would use any of the information contained in the passage in such an asnwer, mark it 2. If the passage is primarily about the query, or contains vital information about the topic, mark it 3. Otherwise, mark it 0."""
+    prompt = f"""You are a search quality rater evaluating the relevance of passages. Given a query and passage, you must provide a score on an integer scale of 0 or 1 with the following meanings:\n
+    {ordered_descriptions}"""
+    # Assume that you are writing an answer to the query. If the passage seems to be related to the query but does not include any answer to the query, mark it 1. If you would use any of the information contained in the passage in such an asnwer, mark it 2. If the passage is primarily about the query, or contains vital information about the topic, mark it 3. Otherwise, mark it 0."""
     print(prompt)
     return prompt
 
