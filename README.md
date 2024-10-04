@@ -23,8 +23,12 @@ python3 main.py --model_id "meta-llama/Meta-Llama-3-8B-Instruct" --test_qrel_pat
 
 
 
-command on decompsing prompt:
+command on decompsing prompt: 4prompt:
 python3 main.py --model_id "meta-llama/Meta-Llama-3-8B-Instruct" --test_qrel_path "./data/llm4eval_dev_qrel_2024.txt" --queries_path "./data/llm4eval_query_2024.txt" --docs_path "./data/llm4eval_document_2024.jsonl" --result_file_path "./results/dev_decomposed_relavance_qrel.txt" --score_order_in_prompt "3210" --decomposed_relavance True
+
+
+python3 main.py --model_id "meta-llama/Meta-Llama-3-8B-Instruct" --test_qrel_path "./data/dl2019/2019qrels-pass.txt" --queries_path "./data/dl2019/msmarco-test2019-queries.tsv" --docs_path "./data/dl2019/dl2019_document.jsonl" --result_file_path "./results/4_prompts_dl2019.txt" --score_order_in_prompt "3210" --decomposed_relavance True
+
 
 **********
 python3 main.py --model_id "meta-llama/Meta-Llama-3-8B-Instruct" --test_qrel_path "./data/llm4eval_test_qrel_2024.txt" --queries_path "./data/llm4eval_query_2024.txt" --docs_path "./data/llm4eval_document_2024.jsonl" --result_file_path "./results/test_decomposed_relavance_qrel_2.txt" --score_order_in_prompt "3210" --decomposed_relavance True
@@ -84,3 +88,26 @@ python3 main.py --model_id "meta-llama/Meta-Llama-3-8B-Instruct" --test_qrel_pat
 
 python3 cohens_kappa_multiclass.py "./data/llm4eval_dev_qrel_2024.txt" "./results/dev_gen_query_similarity_qrel.txt" "./analysis/dev_gen_query_similarity_qrel.txt"
 python3 analysis_qrels.py "./data/llm4eval_dev_qrel_2024.txt" "./results/dev_gen_query_similarity_qrel.txt" "./analysis/dev_gen_query_similarity_qrel.txt"
+
+
+
+python3 analysis_qrels.py "./data/llm4eval_test_qrel_2024_withRel.txt" "./results/test_decomposed_relavance_qrel.txt" "./analysis/test_decomposed_relavance_qrel.txt"
+
+python3 analysis_qrels.py "./data/llm4eval_test_qrel_2024_withRel.txt" "./results/test_gen_query_similarity_qrel.txt" "./analysis/test_gen_query_similarity_qrel.txt"
+
+python3 analysis_qrels.py "./data/llm4eval_test_qrel_2024_withRel.txt" "./results/test_NaiveB_on_decomposed.txt" "./analysis/test_NaiveB_on_decomposed.txt"
+
+
+python3 analysis_qrels.py "./data/llm4eval_test_qrel_2024_withRel.txt" "./results/test_sum_of_decomposed_prompts.txt" "./analysis/test_sum_of_decomposed_prompts.txt"
+
+python3 analysis_qrels.py "./data/llm4eval_test_qrel_2024_withRel.txt" "./results/test_sun_then_decomposed_relavance_qrel.txt" "./analysis/test_sun_then_decomposed_relavance_qrel.txt"
+
+
+python3 analysis_qrels.py "./data/llm4eval_test_qrel_2024_withRel.txt" "./results/test_baseline_qrel_prompt order: 0123.txt" "./analysis/test_baseline_qrel_prompt order: 0123.txt"
+
+python3 analysis_qrels.py "./data/llm4eval_test_qrel_2024_withRel.txt" "./results/test_baseline_qrel_prompt order: 3210.txt" "./analysis/test_baseline_qrel_prompt order: 3210.txt"
+
+
+python3 main.py --model_id "meta-llama/Meta-Llama-3-8B-Instruct" --test_qrel_path "./data/llm4eval_test_qrel_2024.txt" --queries_path "./data/llm4eval_query_2024.txt" --docs_path "./data/llm4eval_document_2024.jsonl" --result_file_path "./results/test_baseline_qrel.txt" --score_order_in_prompt "0123" 
+
+python3 main.py --model_id "meta-llama/Meta-Llama-3-8B-Instruct" --test_qrel_path "./data/llm4eval_test_qrel_2024.txt" --queries_path "./data/llm4eval_query_2024.txt" --docs_path "./data/llm4eval_document_2024.jsonl" --result_file_path "./results/test_baseline_qrel.txt" --score_order_in_prompt "3210" 

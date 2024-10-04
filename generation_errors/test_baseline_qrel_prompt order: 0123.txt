@@ -1,0 +1,10 @@
+q22 0 p10587  1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 
+q22 0 p906 Score: 0
+q4 0 p2547 Score: 0
+q4 0 p7603 =:  &#,:=:, &# =, =, =,  =,=:,,,,,,,,,,,  :,,:,:&#,,, :&#,::::::: ::::::::::: :,:,,,,,,,,,,,:,:,
+q34 0 p8762 Based on the query "baltimore city school for the arts" and the passage provided, I would rate the relevance of the passage as a 0. The passage does not contain any information related to the query, and the text is a collection of random words and phrases that do not form a coherent or meaningful passage.
+q31 0 p7051  passage, a relevantly to be the passage
+q14 0 p3170 Based on the provided list of plugins, I would rate the relevance of the passage to the query "who owns drs train fleet" as 0, since none of the plugins mentioned have any connection to trains or fleets. The passage appears to be a list of audio plugins and their features, with no mention of trains or transportation.
+q13 0 p8714 I would rate the passage as a 0. The passage does not contain any information about "Sherrilyn Feeney", and it appears to be a track and field meet results report.
+q30 0 p8935 :04:13:14:14:13:14:14:14:13:30:30:13:13:13:13:14:13:13:30:30:30:30:30:16:15:&#Ââ&#Ââ&#c&#Ââ
+13:13:14:13:13:14:14:13:13:30:04:30:30:30:13:Ââââ&#Ââ

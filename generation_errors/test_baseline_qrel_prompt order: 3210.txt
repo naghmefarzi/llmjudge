@@ -1,0 +1,10 @@
+q22 0 p10587  1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 1 cialis 
+q22 0 p906 Score: 0
+q4 0 p7603 ==   = = = = =  =, = == === =  = 72,     ,,  =    == ,  </=,    = =  =,,, =,    ,, =,, , =,
+q34 0 p8762 Based on the query "baltimore city school for the arts" and the passage provided, I would rate the relevance of the passage as 0. The passage does not contain any information related to the query, and the text is a collection of random words and phrases that do not form a coherent or meaningful passage.
+q31 0 p7051  passage, a 3 passage
+
+ The passage
+q14 0 p3170 Based on the provided list of plugins, I would rate the relevance of the passage to the query "who owns drs train fleet" as 0. This is because none of the plugins mentioned in the list have any connection to trains or transportation, and the query is unrelated to audio processing or music production.
+q13 0 p8714 I would rate the passage as a 0. The query is "who played Sherrilyn Feeney" and the passage does not mention Sherrilyn Feeney at all.
+q30 0 p8935 :04:13:14:13:13:14:14:14:13:30:13:13:13:13:13:13:13:13:30:30:30:30:30:16:15:30:14:30:14:14:13:&#7:14:14:31:14:13:13:13:07:30:30:30:30:17:13:30:&#Ââ&#

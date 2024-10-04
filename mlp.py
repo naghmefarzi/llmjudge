@@ -22,6 +22,57 @@ from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier,
 
 
 
+
+
+
+# Function to create DataFrame from decomposed scores
+def make_dev_df_more_features(dev_path,path_for_decomposed_scores):
+    df = pd.read_csv(dev_path, sep=" ", header=None, names=['qid', 'Q0', 'docid','rel_score'])
+    with open(path_for_decomposed_scores, "r") as f:
+        dictionary = json.load(f)
+    rows = []
+    for i in range(len(df)):
+        try:
+            sample = str((df.loc[i].qid, df.loc[i].docid))
+            # print(sample)
+            label = df.loc[i].rel_score
+            values = list(dictionary[sample].values())
+            row = [sample, int(values[0]), int(values[1]), int(values[2]), int(values[3]),sum(int(values[0]), int(values[1]), int(values[2]), int(values[3])),max(int(values[0]), int(values[1]), int(values[2]), int(values[3])), label]
+        except:
+            row = [sample, 0, 0, 0, 0, 0, 0, label]
+        rows.append(row)
+    
+    new_df = pd.DataFrame(rows, columns=['qid_docid', 'Exactness', 'Topicality', 'Depth', 'Contextual Fit', 'Sum', 'Max', 'rel_label'])
+    return new_df
+def make_test_df_more_features(test_path,path_for_decomposed_scores):
+    df = pd.read_csv(test_path, sep=" ", header=None, names=['qid', 'Q0', 'docid'])
+    with open(path_for_decomposed_scores, "r") as f:
+        dictionary = json.load(f)  
+    rows = []
+    for i in range(len(df)):
+        try:
+            sample = str((df.loc[i].qid, df.loc[i].docid))
+            # print(sample)
+            values = list(dictionary[sample].values())
+            sum_ = int(values[0])+ int(values[1])+ int(values[2])+ int(values[3])
+            max_ = max(int(values[0]), int(values[1]), int(values[2]), int(values[3]))
+                
+            label = df.loc[i].rel_score
+                                                                                       
+            row = [sample, int(values[0]), int(values[1]), int(values[2]), int(values[3]),sum_, max_, label]
+        except:
+            row = [sample, 0, 0, 0, 0, 0, 0]
+        rows.append(row)
+    
+    new_df = pd.DataFrame(rows, columns=['qid_docid', 'Exactness', 'Topicality', 'Depth', 'Contextual Fit','Sum', 'Max'])
+    return new_df
+
+
+
+
+
+
+
 # Function to create DataFrame from decomposed scores
 def make_dev_df(dev_path,path_for_decomposed_scores):
     df = pd.read_csv(dev_path, sep=" ", header=None, names=['qid', 'Q0', 'docid','rel_score'])
@@ -67,6 +118,8 @@ def make_test_df(test_path,path_for_decomposed_scores):
 dev_path = "./data/llm4eval_dev_qrel_2024.txt"
 path_for_decomposed_scores = "./decomposed_scores/dev_decomposed_relavance_qrel.json"
 train_df = make_dev_df(dev_path,path_for_decomposed_scores)
+# train_df = make_dev_df_more_features(dev_path,path_for_decomposed_scores)
+
 
 # Split features and labels
 X = train_df.iloc[:, 1:-1]
@@ -94,6 +147,8 @@ models = {
 test_path = "./data/llm4eval_test_qrel_2024.txt"
 path_for_decomposed_scores = "./decomposed_scores/test_decomposed_relavance_qrel.json"
 test_df = make_test_df(test_path,path_for_decomposed_scores)
+# test_df = make_test_df_more_features(test_path,path_for_decomposed_scores)
+
 X_TEST = test_df.iloc[:,1:]
 # print(X_TEST)
 
@@ -133,10 +188,10 @@ for model_name, kappa_scores in results.items():
 
 test_df = pd.concat([test_df,pd.DataFrame(Y_PRED,columns=["predicted_rel_score"])],axis=1)
 # print(test_df)
-# with open("./results/test_NaiveB_on_decomposed.txt","w") as f:
-#     for row_idx in range(len(test_df)):
+with open("./results/test_NaiveB_more_features_on_decomposed.txt","w") as f:
+    for row_idx in range(len(test_df)):
         
-#         qid, docid = test_df.loc[row_idx].qid_docid.replace("(","").replace("'","").replace(")","").replace(" ","").split(",")
-#         score = test_df.loc[row_idx].predicted_rel_score
-#         # print(qid)
-#         f.write(f"{qid} 0 {docid} {score}\n")
+        qid, docid = test_df.loc[row_idx].qid_docid.replace("(","").replace("'","").replace(")","").replace(" ","").split(",")
+        score = test_df.loc[row_idx].predicted_rel_score
+        # print(qid)
+        f.write(f"{qid} 0 {docid} {score}\n")
