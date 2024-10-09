@@ -30,6 +30,11 @@ python3 main.py --model_id "meta-llama/Meta-Llama-3-8B-Instruct" --test_qrel_pat
 python3 main.py --model_id "meta-llama/Meta-Llama-3-8B-Instruct" --test_qrel_path "./data/dl2019/2019qrels-pass.txt" --queries_path "./data/dl2019/msmarco-test2019-queries.tsv" --docs_path "./data/dl2019/dl2019_document.jsonl" --result_file_path "./results/4_prompts_dl2019.txt" --score_order_in_prompt "3210" --decomposed_relavance True
 
 python3 main.py --model_id "meta-llama/Meta-Llama-3-8B-Instruct" --test_qrel_path "./data/dl2020/2020qrels-pass.txt" --queries_path "./data/dl2020/msmarco-test2020-queries.tsv" --docs_path "./data/dl2020/dl2020_document.jsonl" --result_file_path "./results/4_prompts_dl2020.txt" --score_order_in_prompt "3210" --decomposed_relavance True
+
+
+python3 main.py --model_id "meta-llama/Meta-Llama-3-8B-Instruct" --test_qrel_path "./data/dl2019/2019qrels-pass.txt" --queries_path "./data/dl2019/msmarco-test2019-queries.tsv" --docs_path "./data/dl2019/dl2019_document.jsonl" --result_file_path "./results/dl2019_sun_then_decomposed_relavance_qrel.txt" --sunprompt_then_decomposed True
+
+
 **********
 python3 main.py --model_id "meta-llama/Meta-Llama-3-8B-Instruct" --test_qrel_path "./data/llm4eval_test_qrel_2024.txt" --queries_path "./data/llm4eval_query_2024.txt" --docs_path "./data/llm4eval_document_2024.jsonl" --result_file_path "./results/test_decomposed_relavance_qrel_2.txt" --score_order_in_prompt "3210" --decomposed_relavance True
 

@@ -263,7 +263,14 @@ def process_test_sunprompt_then_decomposed_only_qrel(test_qrel, docid_to_doc, qi
 
             try:
                 # Get relevance score
-                pred_score, decomposed_scores_list_for_one_query = sun_prompt_then_decomposed(query=qid_to_query[qidx], passage=docid_to_doc[docidx],pipeline=pipeline,log_file_path=logs_path,system_message=system_message,qidx=qidx,docidx=docidx)
+                try:
+                    pred_score, decomposed_scores_list_for_one_query = sun_prompt_then_decomposed(query=qid_to_query[qidx], passage=docid_to_doc[docidx],pipeline=pipeline,log_file_path=logs_path,system_message=system_message,qidx=qidx,docidx=docidx)
+                except:
+                    docidx = str(docidx)
+                    pred_score, decomposed_scores_list_for_one_query = sun_prompt_then_decomposed(query=qid_to_query[qidx], passage=docid_to_doc[docidx],pipeline=pipeline,log_file_path=logs_path,system_message=system_message,qidx=qidx,docidx=docidx)
+                  
+                
+                # pred_score, decomposed_scores_list_for_one_query = sun_prompt_then_decomposed(query=qid_to_query[qidx], passage=docid_to_doc[docidx],pipeline=pipeline,log_file_path=logs_path,system_message=system_message,qidx=qidx,docidx=docidx)
                 decomposed_scores[(qidx,docidx)] = decomposed_scores_list_for_one_query
             except RuntimeError as e:
                 if 'CUDA out of memory' in str(e):
