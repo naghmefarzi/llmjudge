@@ -24,13 +24,11 @@ This project includes an empirical evaluation using data from the **LLMJudge Cha
 
 ## Dependencies
 
-- Python 3.x
-- Meta's Llama LLMs
-- Required Python packages: `numpy`, `scikit-learn`, etc. (see `requirements.txt`)
+- Meta's Llama 3 LLM
 
 ## How to Run
 
-### Baseline Evaluation with `3210` Scoring
+### Baseline Evaluation with `3210` Scoring on all
 
 ```bash
 python3 main.py --model_id "meta-llama/Meta-Llama-3-8B-Instruct" \
@@ -44,3 +42,37 @@ python3 main.py --model_id "meta-llama/Meta-Llama-3-8B-Instruct" \
   --score_order_in_prompt "3210" \
   --store_top_k_doc_scores 100 \
   --exam
+
+
+### Relevance Labels Based on Qrel Only 0123 ordering
+
+python3 main.py --model_id "meta-llama/Meta-Llama-3-8B-Instruct" \
+  --test_qrel_path "./data/llm4eval_dev_qrel_2024.txt" \
+  --queries_path "./data/llm4eval_query_2024.txt" \
+  --docs_path "./data/llm4eval_document_2024.jsonl" \
+  --result_file_path "./results/dev_baseline_qrel.txt" \
+  --score_order_in_prompt "0123" 
+
+### Four Prompts
+
+python3 main.py --model_id "meta-llama/Meta-Llama-3-8B-Instruct" \
+  --test_qrel_path "./data/llm4eval_dev_qrel_2024.txt" \
+  --queries_path "./data/llm4eval_query_2024.txt" \
+  --docs_path "./data/llm4eval_document_2024.jsonl" \
+  --result_file_path "./results/dev_decomposed_relavance_qrel.txt" \
+  --score_order_in_prompt "3210" \
+  --decomposed_relavance True
+
+### Binary Check + Subset of Four Prompts
+python3 main.py --model_id "meta-llama/Meta-Llama-3-8B-Instruct" \
+  --test_qrel_path "./data/llm4eval_dev_qrel_2024.txt" \
+  --queries_path "./data/llm4eval_query_2024.txt" \
+  --docs_path "./data/llm4eval_document_2024.jsonl" \
+  --result_file_path "./results/dev_sun_then_decomposed_relavance_qrel.txt" \
+  --sunprompt_then_decomposed True
+
+#Analysis
+
+python3 analysis_qrels.py "./data/llm4eval_dev_qrel_2024.txt" \
+  "./results/llm4eval_dev_qrel_results_baseline.txt" \
+  "./analysis/dev_baseline_analysis.txt"
