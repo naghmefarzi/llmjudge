@@ -89,7 +89,13 @@ def process_passages_based_on_gen_query(test_qrel, docid_to_doc, qid_to_query, r
 
             try:
                 # Get relevance score
-                pred_score, passage_to_predicted_query = make_query_out_of_passage_relevance(query=qid_to_query[qidx], passage=docid_to_doc[docidx],pipeline=pipeline,log_file_path=logs_path,qidx=qidx,docidx=docidx, passage_to_predicted_query=passage_to_predicted_query)
+                try:
+                    pred_score, passage_to_predicted_query = make_query_out_of_passage_relevance(query=qid_to_query[qidx], passage=docid_to_doc[docidx],pipeline=pipeline,log_file_path=logs_path,qidx=qidx,docidx=docidx, passage_to_predicted_query=passage_to_predicted_query)
+                except:
+                    docidx = str(docidx)
+                    pred_score, passage_to_predicted_query = make_query_out_of_passage_relevance(query=qid_to_query[qidx], passage=docid_to_doc[docidx],pipeline=pipeline,log_file_path=logs_path,qidx=qidx,docidx=docidx, passage_to_predicted_query=passage_to_predicted_query)
+                    
+                    
             except RuntimeError as e:
                 if 'CUDA out of memory' in str(e):
                     error = f"CUDA out of memory error for docid {docidx}. Skipping this document."
