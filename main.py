@@ -96,7 +96,7 @@ def main():
             process_test_sunprompt_then_decomposed_only_qrel(test_qrel, docid_to_doc, qid_to_query, args.result_file_path, pipe ,system_message)
 
         elif args.decomposed_relavance:
-            print("**decomposed prompting setting**\n")
+            print("**decomposed prompting setting--4prompts**\n")
             pipe = get_model_baseline(args.model_id)
             process_test_decomposed_prompts_only_qrel(test_qrel, docid_to_doc, qid_to_query, args.result_file_path, pipe ,system_message)
 

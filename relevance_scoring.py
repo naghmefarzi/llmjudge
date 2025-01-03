@@ -370,43 +370,93 @@ def get_relevance_score_decomposed_prompts(query,passage,pipeline,log_file_path,
  
  
 
-def get_relevance_score_baseline(prompt: str,pipeline,system_message:str):
-  messages = [
-      {"role": "system", "content": system_message},
-      {"role": "user", "content": prompt},
-  ]
+# def get_relevance_score_baseline(prompt: str,pipeline,system_message:str):
+#   messages = [
+#       {"role": "system", "content": system_message},
+#       {"role": "user", "content": prompt},
+#   ]
   
   
-  # Check if the function has been called before
-  if not hasattr(get_relevance_score_baseline, "called"):
-  # Set the attribute to indicate the function has been called
-    get_relevance_score_baseline.called = True
-    print(messages)
+#   # Check if the function has been called before
+#   if not hasattr(get_relevance_score_baseline, "called"):
+#   # Set the attribute to indicate the function has been called
+#     get_relevance_score_baseline.called = True
+#     print(messages)
 
-  prompt = pipeline.tokenizer.apply_chat_template(
-          messages,
-          tokenize=False,
-          add_generation_prompt=True
-  )
+#   prompt = pipeline.tokenizer.apply_chat_template(
+#           messages,
+#           tokenize=False,
+#           add_generation_prompt=True
+#   )
 
-  terminators = [
-      pipeline.tokenizer.eos_token_id,
-      pipeline.tokenizer.convert_tokens_to_ids("<|eot_id|>")
-  ]
+#   terminators = [
+#       pipeline.tokenizer.eos_token_id,
+#       pipeline.tokenizer.convert_tokens_to_ids("<|eot_id|>")
+#   ]
 
-  outputs = pipeline(
-      prompt,
-      max_new_tokens=100,
-      eos_token_id=terminators,
-      pad_token_id=128009,
-      do_sample=True,
-      temperature=0.1,
-      top_p=0.9,
-  )
+#   outputs = pipeline(
+#       prompt,
+#       max_new_tokens=100,
+#       eos_token_id=terminators,
+#       pad_token_id=128009,
+#       do_sample=True,
+#       temperature=0.1,
+#       top_p=0.9,
+#   )
 
-  return outputs[0]["generated_text"][len(prompt):]
+#   return outputs[0]["generated_text"][len(prompt):]
 
 
+def get_relevance_score_baseline(prompt: str, pipeline, system_message: str):
+    # Prepare messages for chat template
+    messages = [
+        {"role": "system", "content": system_message},
+        {"role": "user", "content": prompt},
+    ]
+    
+    # Check if the function has been called before
+    if not hasattr(get_relevance_score_baseline, "called"):
+        # Set the attribute to indicate the function has been called
+        get_relevance_score_baseline.called = True
+        print(messages)
+
+    # Check if pipeline tokenizer supports chat templates
+    if hasattr(pipeline.tokenizer, "apply_chat_template"):
+        # Check if the chat_template is set
+        if hasattr(pipeline.tokenizer, 'chat_template') and pipeline.tokenizer.chat_template is not None:
+            # Use apply_chat_template if supported and template is set
+            prompt = pipeline.tokenizer.apply_chat_template(
+                messages,
+                tokenize=False,
+                add_generation_prompt=True
+            )
+        else:
+            # If chat_template is not set, fall back to concatenating system_message and prompt
+            print("Warning: Chat template not set, falling back to simple concatenation.")
+            prompt = f"{system_message}\n{prompt}"
+    else:
+        # Fallback for models without chat template support
+        prompt = f"{system_message}\n{prompt}"
+
+    # Define terminators
+    terminators = [
+        pipeline.tokenizer.eos_token_id,
+        pipeline.tokenizer.convert_tokens_to_ids("<|eot_id|>")
+    ]
+
+    # Generate output from the model
+    outputs = pipeline(
+        prompt,
+        max_new_tokens=100,
+        eos_token_id=terminators,
+        pad_token_id=128009,
+        do_sample=True,
+        temperature=0.1,
+        top_p=0.9,
+    )
+
+    # Return generated text without the prompt
+    return outputs[0]["generated_text"][len(prompt):]
 
 
 def write_top_k_results(relevance_scores_agg, result_file_full , result_file_top_k, k: Optional[int]):

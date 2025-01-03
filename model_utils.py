@@ -5,16 +5,56 @@ from transformers import (AutoTokenizer,AutoModelForCausalLM,
 import transformers
 import torch
 
-def get_model_baseline(name_or_path_to_model : str):
+# def get_model_baseline(name_or_path_to_model : str):
     
 
-    pipeline = transformers.pipeline(
-        "text-generation",
-        model=name_or_path_to_model,
-        model_kwargs={"torch_dtype": torch.bfloat16},
-        device_map="auto",
-    )
-    return pipeline
+#     pipeline = transformers.pipeline(
+#         "text-generation",
+#         model=name_or_path_to_model,
+#         model_kwargs={"torch_dtype": torch.bfloat16},
+#         device_map="auto",
+#     )
+#     return pipeline
+
+
+from transformers import pipeline, AutoTokenizer, AutoModelForCausalLM, AutoModelForSeq2SeqLM
+import torch
+
+def get_model_baseline(name_or_path_to_model: str):
+    # Check if the model is Flan-T5 based on its name
+    if "flan-t5" in name_or_path_to_model.lower():
+        # Load Flan-T5 as a sequence-to-sequence model
+        tokenizer = AutoTokenizer.from_pretrained(name_or_path_to_model)
+        model = AutoModelForSeq2SeqLM.from_pretrained(
+            name_or_path_to_model,
+            torch_dtype=torch.bfloat16,
+            device_map="auto"
+        )
+        
+        # Use the text2text-generation pipeline
+        text_pipeline = pipeline(
+            "text2text-generation",
+            model=model,
+            tokenizer=tokenizer
+        )
+    else:
+        # Assume it's a causal language model (like LLaMA)
+        tokenizer = AutoTokenizer.from_pretrained(name_or_path_to_model)
+        model = AutoModelForCausalLM.from_pretrained(
+            name_or_path_to_model,
+            torch_dtype=torch.bfloat16,
+            device_map="auto"
+        )
+        
+        # Use the text-generation pipeline
+        text_pipeline = pipeline(
+            "text-generation",
+            model=model,
+            tokenizer=tokenizer
+        )
+    
+    return text_pipeline
+
 
 def get_model_quantized(name_or_path_to_model: str) -> Tuple:
 

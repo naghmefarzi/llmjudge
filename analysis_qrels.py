@@ -111,7 +111,46 @@ def main(truth_file, experiment_file, analysis_file):
     cf_matrix_figure(truth_scores, experiment_scores, analysis_file)
     trectoolanalysis(truth_file,experiment_file, analysis_file)
     
-    
+
+
+
+official_DL23_Leaderboard:Dict[str,str] = {'naverloo-rgpt4': 1,
+                                           'naverloo-frgpt4': 2,
+                                           'naverloo_fs_RR_duo': 3,
+                                           'cip_run_1': 4,
+                                           'cip_run_2': 5,
+                                           'cip_run_3': 6,
+                                           'cip_run_6': 7,
+                                           'cip_run_4': 8,
+                                           'cip_run_5': 9,
+                                           'naverloo_fs_RR': 10,
+                                           'cip_run_7': 11,
+                                           'naverloo_bm25_splades_RR': 12,
+                                           'uogtr_qr_be_gb': 13,
+                                           'uogtr_b_grf_e_gb': 14,
+                                           'uogtr_se_gb': 15,
+                                           'uogtr_be_gb': 16,
+                                           'uogtr_se': 17,
+                                           'naverloo_bm25_RR': 18,
+                                           'uogtr_qr_be': 19,
+                                           'uogtr_b_grf_e': 20,
+                                           'naverloo_fs': 21,
+                                           'uogtr_be': 22,
+                                           'slim-pp-0shot-uw': 23,
+                                           'splade_pp_self_distil': 24,
+                                           'splade_pp_ensemble_distil': 25,
+                                           'bm25_splades': 26,
+                                           'uogtr_s': 27,
+                                           'agg-cocondenser': 28,
+                                           'uot-yahoo_rankgpt4': 29,
+                                           'WatS-LLM-Rerank': 30,
+                                           'uot-yahoo_rankgpt35': 31,
+                                           'WatS-Augmented-BM25': 32,
+                                           'uot-yahoo_LLMs-blender': 33,
+                                           'uogtr_dph': 34,
+                                           'uogtr_dph_bo1': 35}
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="TREC Analysis")
     parser.add_argument("truth_file", type=str, help="Path to the ground truth TREC file")
