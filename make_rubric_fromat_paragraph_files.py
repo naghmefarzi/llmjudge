@@ -2,20 +2,20 @@ import json
 import os
 import gzip
 import re
-def generate_json_line(query_id, paragraph_id, text, exactness_score, topicality_score, coverage_score, contextual_fit_score, relevance_label,query_text,ground_truth_relevance_label,passage_to_msmarco,qidtomsmarcoqids):
+def generate_json_line(query_id, paragraph_id, text, exactness_score, topicality_score, coverage_score, contextual_fit_score, relevance_label, final_relevance_label, query_text, ground_truth_relevance_label, binary_rel=None, passage_to_msmarco=None, qidtomsmarcoqids=None, relevance_score_from_generated_qrel=False, generated_qrel_dict=None):
     # Define the structure of the JSON line
     json_line = [
-        qidtomsmarcoqids[query_id],  # The query ID (e.g., q49)
+        qidtomsmarcoqids[query_id] if qidtomsmarcoqids else query_id,  # The query ID (e.g., q49)
         [
             {
-                "paragraph_id": passage_to_msmarco[paragraph_id],  # The paragraph ID (e.g., p3659)
+                "paragraph_id": passage_to_msmarco[paragraph_id] if passage_to_msmarco else paragraph_id,  # The paragraph ID (e.g., p3659)
                 "text": text,  # The paragraph text (e.g., passage)
                 "paragraph": "",  # Empty or additional paragraph-related field (you can customize it)
                 "paragraph_data": {
                     "judgments": [
                         {
-                            "paragraphId": paragraph_id,
-                            "query": qidtomsmarcoqids[query_id],
+                            "paragraphId": passage_to_msmarco[paragraph_id] if passage_to_msmarco else paragraph_id,  # The paragraph ID (e.g., p3659)
+                            "query": qidtomsmarcoqids[query_id] if qidtomsmarcoqids else query_id,
                             "relevance": ground_truth_relevance_label,  # The relevance score
                             "titleQuery": query_text  # The title or name for the query
                         }
@@ -48,6 +48,9 @@ def generate_json_line(query_id, paragraph_id, text, exactness_score, topicality
                         "check_answer_key": True,
                         "is_self_rated": True,
                         "rating_extractor": "SelfRaterStrict",
+                        "before_conversion_ids": (paragraph_id,query_id) if passage_to_msmarco else None,
+                        "relevance_label_info": "the max of criterion",
+                        "binary_relevance": binary_rel 
                     },
                     "self_ratings": [
                         {"nugget_id": "Exactness", "self_rating": exactness_score},
@@ -62,7 +65,7 @@ def generate_json_line(query_id, paragraph_id, text, exactness_score, topicality
           "correctAnswered": ["aggregate"],
           "wrongAnswered": [],
           "answers": [
-            ["aggregate", relevance_label]
+            ["aggregate", final_relevance_label if relevance_score_from_generated_qrel is False else generated_qrel_dict[(query_id,paragraph_id)]]
           ],
           "llm_response_errors": {},
           "llm": "meta-llama/Meta-Llama-3-8B-Instruct",
@@ -77,10 +80,10 @@ def generate_json_line(query_id, paragraph_id, text, exactness_score, topicality
             "is_self_rated": True
           },
           "self_ratings": [
-            { "nugget_id": "aggregate", "self_rating": relevance_label }
+            { "nugget_id": "aggregate", "self_rating": final_relevance_label if relevance_score_from_generated_qrel is False else generated_qrel_dict[(query_id,paragraph_id)] }
           ],
           "prompt_type": "nugget",
-          "relevance_label": relevance_label
+          "relevance_label": final_relevance_label if relevance_score_from_generated_qrel is False else generated_qrel_dict[(query_id,paragraph_id)]
         }
       ]
     }
@@ -114,34 +117,59 @@ def make_qrel_dic(qre_file_path):
                 query_id = parts[0]
                 document_id = parts[2]
                 relevance_score = int(parts[3])
-                d[(query_id,document_id)]=relevance_score
+                try:
+                    d[(int(query_id),int(document_id))]=relevance_score
+                except:
+                    # print((query_id,document_id))
+                    d[(query_id,document_id)]=relevance_score
+                    
+    # print(d)
     return d
 
 
-def process_json_line(json_line,qrel_file_path): #qrel_path = the path to qrel of collection ,json_line:one entry of an input file in the llm4judge format
-    qrel_dic = make_qrel_dic(qrel_file_path)
+def process_json_line(json_line, qrel_dic): #qrel_path = the path to qrel of collection ,json_line:one entry of an input file in the llm4judge format
     # Extract the necessary fields from the JSON line
     qidx = json_line["qidx"]
     docidx = json_line["docidx"]
     query = json_line["query"]
     passage = json_line["passage"]
+    try:
+        binary_rel = json_line["binary_rel"]
+    except:
+        binary_rel = None
     
+    
+    exactness_score, coverage_score, topicality_score, contextual_fit_score = 0, 0, 0, 0
     # Extract the decomposed scores
-    decomposed_scores = json_line["decomposed_scores_dict"]
-    exactness_score = decomposed_scores["Exactness"]
-    topicality_score = decomposed_scores["Topicality"]
-    coverage_score = decomposed_scores["Coverage"]
-    contextual_fit_score = decomposed_scores["Contextual Fit"]
-    
+    if binary_rel:
+        if binary_rel.lower() == "yes":
+            decomposed_scores = json_line["decomposed_scores_dict"]
+            coverage_score = decomposed_scores["Coverage"]
+            exactness_score = decomposed_scores["Exactness"]
+        elif binary_rel.lower() == "no":
+            decomposed_scores = json_line["decomposed_scores_dict"]
+            topicality_score = decomposed_scores["Topicality"]
+            contextual_fit_score = decomposed_scores["Contextual Fit"]
+    else:
+        decomposed_scores = json_line["decomposed_scores_dict"]
+        coverage_score = decomposed_scores["Coverage"]
+        exactness_score = decomposed_scores["Exactness"]
+        topicality_score = decomposed_scores["Topicality"]
+        contextual_fit_score = decomposed_scores["Contextual Fit"]
     # Extract the final relevance score
     relevance_label = json_line["final_relevance_score"]
     
     # Build the data structure for the entry
-    groundtruth = qrel_dic[(qidx,docidx)]
+    try:
+        groundtruth = qrel_dic[(qidx,int(docidx))]
+    except:
+        groundtruth = qrel_dic[(qidx,docidx)]
+        
     exactness_score = exactness_score if exactness_score is not None else 0
     topicality_score = topicality_score if topicality_score is not None else 0
     coverage_score = coverage_score if coverage_score is not None else 0
     contextual_fit_score = contextual_fit_score if contextual_fit_score is not None else 0
+    
     return {
         "query_id": qidx,
         "paragraph_id": docidx,
@@ -150,9 +178,11 @@ def process_json_line(json_line,qrel_file_path): #qrel_path = the path to qrel o
         "topicality_score": topicality_score,
         "coverage_score": coverage_score,
         "contextual_fit_score": contextual_fit_score,
-        "relevance_label": relevance_label if relevance_label is not None else max(exactness_score,topicality_score,coverage_score, contextual_fit_score),
+        "relevance_label": max(exactness_score,topicality_score,coverage_score, contextual_fit_score),
+        "final_relevance_label": relevance_label if relevance_label is not None else max(exactness_score,topicality_score,coverage_score, contextual_fit_score),
         "query_text":query,
-        "ground_truth_relevance_label":groundtruth
+        "ground_truth_relevance_label":groundtruth,
+        "binary_rel": binary_rel
     }
 
 # def generate_data_to_write(input_file, qrel_file_path): #input is my llm4judge format of logs .json file
@@ -182,6 +212,8 @@ def process_json_line(json_line,qrel_file_path): #qrel_path = the path to qrel o
 
 
 def generate_data_to_write(filename,qrel_file_path):
+    qrel_dic = make_qrel_dic(qrel_file_path)
+    
     entries = []
     
     with open(filename, 'r', encoding='utf-8') as file:
@@ -194,7 +226,7 @@ def generate_data_to_write(filename,qrel_file_path):
                 # Parse one JSON object at a time
                 decoder = json.JSONDecoder()
                 obj, idx = decoder.raw_decode(content[pos:])
-                processed_data = process_json_line(obj, qrel_file_path)
+                processed_data = process_json_line(obj, qrel_dic)
                 entries.append(processed_data)
                 # Move to the end of the current object
                 pos += idx
@@ -210,27 +242,50 @@ def generate_data_to_write(filename,qrel_file_path):
     
     return entries
 
-
-passage_to_msmarco = make_mapping_dict("./private_data/gold_data/docid_to_docidx.txt")
-qid_to_qidx = make_mapping_dict("./private_data/gold_data/qid_to_qidx.txt")
+output_name = None
 
 
-qrel_file_path = "./private_data/gold_data/llm4eval_test_qrel_2024_withRel.txt"
-input_file = "./logs/test_decomposed_relavance_qrel.json"
+
+# passage_to_msmarco = make_mapping_dict("./private_data/gold_data/docid_to_docidx.txt")
+# qid_to_qidx = make_mapping_dict("./private_data/gold_data/qid_to_qidx.txt")
+# qrel_file_path = "./private_data/gold_data/llm4eval_test_qrel_2024_withRel.txt"
+# input_file = "./logs/test_decomposed_relavance_qrel.json"
+# input_file = "./logs/test_sun_then_decomposed_relavance_qrel.json"
+# generated_qrel_dict = make_qrel_dic("./results/test_NaiveB_on_decomposed.txt")
+# output_name = "test_NaiveB_on_decomposed.json"
 
 
+# qrel_file_path = "./data/dl2019/2019qrels-pass.txt"
+# input_file = "./logs/4_prompts_dl2019.json"
+# input_file = "./logs/dl2019_sun_then_decomposed_relavance_qrel.json"
+
+# qrel_file_path = "./data/dl2020/2020qrels-pass.txt"
+# input_file = "./logs/4_prompts_dl2020.json"
+# input_file = "./logs/dl2020_sun_then_decomposed_relavance_qrel.json"
+
+# input_files = ["./logs/4_prompts_dl2019.json","./logs/4_prompts_dl2020.json", "./logs/test_sun_then_decomposed_relavance_qrel.json","./logs/test_gen_query_similarity_qrel.json","./logs/dl2019_gen_query_similarity_qrel.json","./logs/dl2019_sun_then_decomposed_relavance_qrel.json","./logs/dl2020_sun_then_decomposed_relavance_qrel.json"]
+# for input_file in input_files:
 data_to_write = generate_data_to_write(input_file,qrel_file_path)
 
 output_dir = "./rubric_format_inputs/"
 os.makedirs(output_dir, exist_ok=True)  # Create the directory if it doesn't exist
 
+# output_name = "test_sum_of_decomposed_prompts.json"
+output_full_name = f"./rubric_format_inputs/{os.path.basename(input_file).replace('.json', '.jsonl.gz')}" if output_name is None else f"./rubric_format_inputs/{os.path.basename(output_name).replace('.json', '.jsonl.gz')}"
 # Open the file to write the JSON lines in compressed text mode
-with gzip.open(f"./rubric_format_inputs/{os.path.basename(input_file).replace('.json', '.jsonl.gz')}", 'wt', encoding='utf-8') as f:
+with gzip.open(output_full_name, 'wt', encoding='utf-8') as f:
     for entry in data_to_write:
+        binary_rel = entry["binary_rel"] if entry["binary_rel"] else None
+        
         json_line = generate_json_line(
             entry["query_id"], entry["paragraph_id"], entry["text"], 
             entry["exactness_score"], entry["topicality_score"], entry["coverage_score"],
-            entry["contextual_fit_score"], entry["relevance_label"], entry["query_text"], 
-            entry["ground_truth_relevance_label"], passage_to_msmarco, qid_to_qidx
+            entry["contextual_fit_score"], entry["relevance_label"], entry["final_relevance_label"],entry["query_text"], 
+            
+            entry["ground_truth_relevance_label"] 
+            #, passage_to_msmarco=passage_to_msmarco, qidtomsmarcoqids=qid_to_qidx
+            , binary_rel=binary_rel
+            # , relevance_score_from_generated_qrel=True, generated_qrel_dict=generated_qrel_dict
+            
         )
         f.write(json_line + '\n')  # Write each JSON line in the compressed file
