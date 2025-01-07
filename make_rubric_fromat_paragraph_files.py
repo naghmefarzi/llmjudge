@@ -2,7 +2,7 @@ import json
 import os
 import gzip
 import re
-def generate_json_line(query_id, paragraph_id, text, exactness_score, topicality_score, coverage_score, contextual_fit_score, relevance_label, final_relevance_label, query_text, ground_truth_relevance_label, binary_rel=None, passage_to_msmarco=None, qidtomsmarcoqids=None, relevance_score_from_generated_qrel=False, generated_qrel_dict=None):
+def generate_json_line(query_id, paragraph_id, text, exactness_score, topicality_score, coverage_score, contextual_fit_score, relevance_label, final_relevance_label, threshold_on_sum, query_text, ground_truth_relevance_label, binary_rel=None, passage_to_msmarco=None, qidtomsmarcoqids=None, relevance_score_from_generated_qrel=False, generated_qrel_dict=None, sum_flag = False):
     # Define the structure of the JSON line
     json_line = [
         qidtomsmarcoqids[query_id] if qidtomsmarcoqids else query_id,  # The query ID (e.g., q49)
@@ -65,7 +65,11 @@ def generate_json_line(query_id, paragraph_id, text, exactness_score, topicality
           "correctAnswered": ["aggregate"],
           "wrongAnswered": [],
           "answers": [
-            ["aggregate", final_relevance_label if relevance_score_from_generated_qrel is False else generated_qrel_dict[(query_id,paragraph_id)]]
+            ["aggregate", threshold_on_sum if sum_flag 
+                            else (
+                                final_relevance_label if not relevance_score_from_generated_qrel 
+                                else generated_qrel_dict[(query_id, paragraph_id)]
+                            )]
           ],
           "llm_response_errors": {},
           "llm": "meta-llama/Meta-Llama-3-8B-Instruct",
@@ -80,10 +84,18 @@ def generate_json_line(query_id, paragraph_id, text, exactness_score, topicality
             "is_self_rated": True
           },
           "self_ratings": [
-            { "nugget_id": "aggregate", "self_rating": final_relevance_label if relevance_score_from_generated_qrel is False else generated_qrel_dict[(query_id,paragraph_id)] }
+            { "nugget_id": "aggregate", "self_rating": threshold_on_sum if sum_flag 
+                                                        else (
+                                                            final_relevance_label if not relevance_score_from_generated_qrel 
+                                                            else generated_qrel_dict[(query_id, paragraph_id)]
+                                                        )}
           ],
           "prompt_type": "nugget",
-          "relevance_label": final_relevance_label if relevance_score_from_generated_qrel is False else generated_qrel_dict[(query_id,paragraph_id)]
+          "relevance_label": threshold_on_sum if sum_flag 
+                            else (
+                                final_relevance_label if not relevance_score_from_generated_qrel 
+                                else generated_qrel_dict[(query_id, paragraph_id)]
+                            )
         }
       ]
     }
@@ -126,6 +138,18 @@ def make_qrel_dic(qre_file_path):
     # print(d)
     return d
 
+
+
+def threshold_for_sum(overal_sum):
+    if 10<=overal_sum <=12:
+        overal_score = 3
+    elif 7<=overal_sum <=9:
+        overal_score = 2
+    if 5<=overal_sum <=6:
+        overal_score = 1
+    if 0<=overal_sum <=5: 
+        overal_score = 0 
+    return overal_score
 
 def process_json_line(json_line, qrel_dic): #qrel_path = the path to qrel of collection ,json_line:one entry of an input file in the llm4judge format
     # Extract the necessary fields from the JSON line
@@ -182,7 +206,9 @@ def process_json_line(json_line, qrel_dic): #qrel_path = the path to qrel of col
         "final_relevance_label": relevance_label if relevance_label is not None else max(exactness_score,topicality_score,coverage_score, contextual_fit_score),
         "query_text":query,
         "ground_truth_relevance_label":groundtruth,
-        "binary_rel": binary_rel
+        "binary_rel": binary_rel,
+        "threshold_on_sum": threshold_for_sum(sum([exactness_score, topicality_score, coverage_score, contextual_fit_score]))
+            
     }
 
 # def generate_data_to_write(input_file, qrel_file_path): #input is my llm4judge format of logs .json file
@@ -252,16 +278,18 @@ output_name = None
 # input_file = "./logs/test_decomposed_relavance_qrel.json"
 # input_file = "./logs/test_sun_then_decomposed_relavance_qrel.json"
 # generated_qrel_dict = make_qrel_dic("./results/test_NaiveB_on_decomposed.txt")
-# output_name = "test_NaiveB_on_decomposed.json"
+# output_name = "test_sum_of_decomposed.json"
 
 
 # qrel_file_path = "./data/dl2019/2019qrels-pass.txt"
 # input_file = "./logs/4_prompts_dl2019.json"
 # input_file = "./logs/dl2019_sun_then_decomposed_relavance_qrel.json"
+# output_name = "dl2019_sum_of_decomposed.json"
 
-# qrel_file_path = "./data/dl2020/2020qrels-pass.txt"
-# input_file = "./logs/4_prompts_dl2020.json"
+qrel_file_path = "./data/dl2020/2020qrels-pass.txt"
+input_file = "./logs/4_prompts_dl2020.json"
 # input_file = "./logs/dl2020_sun_then_decomposed_relavance_qrel.json"
+output_name = "dl2020_sum_of_decomposed.json"
 
 # input_files = ["./logs/4_prompts_dl2019.json","./logs/4_prompts_dl2020.json", "./logs/test_sun_then_decomposed_relavance_qrel.json","./logs/test_gen_query_similarity_qrel.json","./logs/dl2019_gen_query_similarity_qrel.json","./logs/dl2019_sun_then_decomposed_relavance_qrel.json","./logs/dl2020_sun_then_decomposed_relavance_qrel.json"]
 # for input_file in input_files:
@@ -280,12 +308,13 @@ with gzip.open(output_full_name, 'wt', encoding='utf-8') as f:
         json_line = generate_json_line(
             entry["query_id"], entry["paragraph_id"], entry["text"], 
             entry["exactness_score"], entry["topicality_score"], entry["coverage_score"],
-            entry["contextual_fit_score"], entry["relevance_label"], entry["final_relevance_label"],entry["query_text"], 
+            entry["contextual_fit_score"], entry["relevance_label"], entry["final_relevance_label"], entry["threshold_on_sum"], entry["query_text"], 
             
             entry["ground_truth_relevance_label"] 
-            #, passage_to_msmarco=passage_to_msmarco, qidtomsmarcoqids=qid_to_qidx
-            , binary_rel=binary_rel
+            # , passage_to_msmarco=passage_to_msmarco, qidtomsmarcoqids=qid_to_qidx
+            # , binary_rel=binary_rel
             # , relevance_score_from_generated_qrel=True, generated_qrel_dict=generated_qrel_dict
+            , sum_flag=True
             
         )
         f.write(json_line + '\n')  # Write each JSON line in the compressed file
