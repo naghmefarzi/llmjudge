@@ -5,17 +5,17 @@ import re
 def generate_json_line(query_id, paragraph_id, text, exactness_score, topicality_score, coverage_score, contextual_fit_score, relevance_label, final_relevance_label, threshold_on_sum, query_text, ground_truth_relevance_label, binary_rel=None, passage_to_msmarco=None, qidtomsmarcoqids=None, relevance_score_from_generated_qrel=False, generated_qrel_dict=None, sum_flag = False):
     # Define the structure of the JSON line
     json_line = [
-        qidtomsmarcoqids[query_id] if qidtomsmarcoqids else query_id,  # The query ID (e.g., q49)
+        str(qidtomsmarcoqids[query_id]) if qidtomsmarcoqids else str(query_id),  # The query ID (e.g., q49)
         [
             {
-                "paragraph_id": passage_to_msmarco[paragraph_id] if passage_to_msmarco else paragraph_id,  # The paragraph ID (e.g., p3659)
+                "paragraph_id": str(passage_to_msmarco[paragraph_id]) if passage_to_msmarco else str(paragraph_id),  # The paragraph ID (e.g., p3659)
                 "text": text,  # The paragraph text (e.g., passage)
                 "paragraph": "",  # Empty or additional paragraph-related field (you can customize it)
                 "paragraph_data": {
                     "judgments": [
                         {
-                            "paragraphId": passage_to_msmarco[paragraph_id] if passage_to_msmarco else paragraph_id,  # The paragraph ID (e.g., p3659)
-                            "query": qidtomsmarcoqids[query_id] if qidtomsmarcoqids else query_id,
+                            "paragraphId": str(passage_to_msmarco[paragraph_id]) if passage_to_msmarco else str(paragraph_id),  # The paragraph ID (e.g., p3659)
+                            "query": str(qidtomsmarcoqids[query_id]) if qidtomsmarcoqids else str(query_id),
                             "relevance": ground_truth_relevance_label,  # The relevance score
                             "titleQuery": query_text  # The title or name for the query
                         }
@@ -281,15 +281,15 @@ output_name = None
 # output_name = "test_sum_of_decomposed.json"
 
 
-# qrel_file_path = "./data/dl2019/2019qrels-pass.txt"
-# input_file = "./logs/4_prompts_dl2019.json"
+qrel_file_path = "./data/dl2019/2019qrels-pass.txt"
+input_file = "./logs/4_prompts_dl2019.json"
 # input_file = "./logs/dl2019_sun_then_decomposed_relavance_qrel.json"
 # output_name = "dl2019_sum_of_decomposed.json"
 
-qrel_file_path = "./data/dl2020/2020qrels-pass.txt"
-input_file = "./logs/4_prompts_dl2020.json"
+# qrel_file_path = "./data/dl2020/2020qrels-pass.txt"
+# input_file = "./logs/4_prompts_dl2020.json"
 # input_file = "./logs/dl2020_sun_then_decomposed_relavance_qrel.json"
-output_name = "dl2020_sum_of_decomposed.json"
+# output_name = "dl2020_sum_of_decomposed.json"
 
 # input_files = ["./logs/4_prompts_dl2019.json","./logs/4_prompts_dl2020.json", "./logs/test_sun_then_decomposed_relavance_qrel.json","./logs/test_gen_query_similarity_qrel.json","./logs/dl2019_gen_query_similarity_qrel.json","./logs/dl2019_sun_then_decomposed_relavance_qrel.json","./logs/dl2020_sun_then_decomposed_relavance_qrel.json"]
 # for input_file in input_files:
@@ -314,7 +314,7 @@ with gzip.open(output_full_name, 'wt', encoding='utf-8') as f:
             # , passage_to_msmarco=passage_to_msmarco, qidtomsmarcoqids=qid_to_qidx
             # , binary_rel=binary_rel
             # , relevance_score_from_generated_qrel=True, generated_qrel_dict=generated_qrel_dict
-            , sum_flag=True
+            # , sum_flag=True
             
         )
         f.write(json_line + '\n')  # Write each JSON line in the compressed file
