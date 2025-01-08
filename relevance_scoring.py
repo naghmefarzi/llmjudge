@@ -489,7 +489,10 @@ def get_relevance_score_baseline(prompt: str, pipeline, system_message: str):
             )
         else:
             # Fallback when chat template is not set
-            print("Warning: Chat template not set, falling back to simple concatenation.")
+            if not hasattr(get_relevance_score_baseline, "warning"):
+                get_relevance_score_baseline.warning = True
+                print("Warning: Chat template not set, falling back to simple concatenation.")
+
             prompt = f"{system_message}\n{prompt}"
     else:
         # Fallback for models without chat template support
@@ -508,9 +511,13 @@ def get_relevance_score_baseline(prompt: str, pipeline, system_message: str):
 
     # Return generated text without the prompt if chat template was used, otherwise return full text
     if hasattr(pipeline.tokenizer, 'chat_template') and pipeline.tokenizer.chat_template is not None:
-        return outputs[0]["generated_text"][len(prompt):]
+        output =  outputs[0]["generated_text"][len(prompt):]
     else:
-        return outputs[0]["generated_text"]
+        output = outputs[0]["generated_text"]
+    if not hasattr(get_relevance_score_baseline, "print_one_output"):
+        get_relevance_score_baseline.print_one_output = True
+        print(f"sample output: {output}")    
+    return output
 
 
 def write_top_k_results(relevance_scores_agg, result_file_full , result_file_top_k, k: Optional[int]):
