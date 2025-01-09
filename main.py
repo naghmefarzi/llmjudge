@@ -59,7 +59,7 @@ def main():
     parser.add_argument("--decomposed_relavance", type=bool, default=False, help="perform prompts for relevance decomposition.")
     parser.add_argument("--sunprompt_then_decomposed", type=bool, default=False, help="perform sun prompt then relevance rate decomposition.")
     parser.add_argument("--gen_query_similarity", type=bool, default=False, help="perform gen_query_similarity.")
-    parser.add_argument("-together", type = bool, default= False, action="store_true", help="load the model with together ai")
+    parser.add_argument("-together", default= False, action="store_true", help="load the model with together ai")
     
     args = parser.parse_args()
 

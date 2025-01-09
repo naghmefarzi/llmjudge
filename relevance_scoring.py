@@ -472,11 +472,7 @@ def get_relevance_score_baseline(prompt: str, pipeline, system_message: str):
         get_relevance_score_baseline.called = True
         print(messages)
 
-    # Define terminators once for reuse
-    terminators = [
-        pipeline.tokenizer.eos_token_id,
-        pipeline.tokenizer.convert_tokens_to_ids("<|eot_id|>")
-    ]
+    
     if isinstance(pipeline, TogetherPipeline):
         # Directly call Together API
         if not hasattr(get_relevance_score_baseline, "output_from_together"):
@@ -486,6 +482,11 @@ def get_relevance_score_baseline(prompt: str, pipeline, system_message: str):
         output = outputs[0]["generated_text"]
         
     else:
+        # Define terminators once for reuse
+        terminators = [
+            pipeline.tokenizer.eos_token_id,
+            pipeline.tokenizer.convert_tokens_to_ids("<|eot_id|>")
+        ]
         # Check if pipeline tokenizer supports chat templates and process accordingly
         if hasattr(pipeline.tokenizer, "apply_chat_template"):
             if hasattr(pipeline.tokenizer, 'chat_template') and pipeline.tokenizer.chat_template is not None:
