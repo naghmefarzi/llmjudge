@@ -59,7 +59,7 @@ def main():
     parser.add_argument("--decomposed_relavance", type=bool, default=False, help="perform prompts for relevance decomposition.")
     parser.add_argument("--sunprompt_then_decomposed", type=bool, default=False, help="perform sun prompt then relevance rate decomposition.")
     parser.add_argument("--gen_query_similarity", type=bool, default=False, help="perform gen_query_similarity.")
-    
+    parser.add_argument("-together", type = bool, default= False, action="stores_true", help="load the model with together ai")
     
     args = parser.parse_args()
 
@@ -69,9 +69,11 @@ def main():
         
         
     system_message = create_system_message(args.score_order_in_prompt)
+    pipe = get_model_baseline(args.model_id, args.together)
+    
     if not args.on_qrel:
         if not args.exam:
-            pipe = get_model_baseline(args.model_id)
+            # pipe = get_model_baseline(args.model_id, args.together)
             # result_path =  args.result_file_path.replace(".txt",f"_prompt order: {args.score_order_in_prompt}.txt")
             result_path =  args.result_file_path.replace(".run",f"_prompt order: {args.score_order_in_prompt}.run")
             
@@ -79,7 +81,7 @@ def main():
             process_test_qrel_baseline(test_qrel, docid_to_doc, qid_to_query, result_path, pipe, args.chunk_size, generative_error_file_path, args.problematic_passages_path, system_message, args.store_top_k_doc_scores)
         else:
             # NOT COMPLETE YET!!!!!!!!!
-            pipe = get_model_baseline(args.model_id)
+            # pipe = get_model_baseline(args.model_id, args.together)
             result_path =  args.result_file_path.replace(".txt",f"_prompt order: {args.score_order_in_prompt}.txt")
             result_path =  args.result_file_path.replace(".run",f"_prompt order: {args.score_order_in_prompt}.run")
             generative_error_file_path = args.generative_error_file_path.replace(".txt",f"_prompt order: {args.score_order_in_prompt}.txt")
@@ -89,33 +91,34 @@ def main():
             process_exam_qrel(test_qrel, docid_to_doc, qid_to_query, result_path, pipe, args.chunk_size, generative_error_file_path, args.problematic_passages_path, system_message, args.store_top_k_doc_scores)
             
     # WHAT WE SUPPOSED TO HAVE :
+    
     else:
         if args.sunprompt_then_decomposed:
             print("**process_test_sunprompt_then_decomposed_only_qrel**")
-            pipe = get_model_baseline(args.model_id)
+            # pipe = get_model_baseline(args.model_id, args.together)
             process_test_sunprompt_then_decomposed_only_qrel(test_qrel, docid_to_doc, qid_to_query, args.result_file_path, pipe ,system_message)
 
         elif args.decomposed_relavance:
             print("**decomposed prompting setting--4prompts**\n")
-            pipe = get_model_baseline(args.model_id)
+            # pipe = get_model_baseline(args.model_id, args.together)
             process_test_decomposed_prompts_only_qrel(test_qrel, docid_to_doc, qid_to_query, args.result_file_path, pipe ,system_message)
 
 
 
         elif args.gen_query_similarity:
-                    print("*********gen query x query -> similarity")
-                    pipe = get_model_baseline(args.model_id)
-                    process_passages_based_on_gen_query(test_qrel, docid_to_doc, qid_to_query, args.result_file_path, pipe)
+            print("*********gen query x query -> similarity")
+            # pipe = get_model_baseline(args.model_id, args.together)
+            process_passages_based_on_gen_query(test_qrel, docid_to_doc, qid_to_query, args.result_file_path, pipe)
         
         elif args.iterative_prompts:
             #EXPERIMENT ON DECOMPOSING "RELEVANCE" with ITERATIVE PROMPTS
             print("**iterative prompting setting**\n")
-            pipe = get_model_baseline(args.model_id)
+            # pipe = get_model_baseline(args.model_id, args.together)
             process_test_iterative_prompts_only_qrel(test_qrel, docid_to_doc, qid_to_query, args.result_file_path, pipe ,system_message)
 
         else:
             # EXPERIMENT ON ORDER OF SCORING ONLY
-            pipe = get_model_baseline(args.model_id)
+            # pipe = get_model_baseline(args.model_id, args.together)
             if "txt" in args.result_file_path:
                 result_path =  args.result_file_path.replace(".txt",f"_prompt order: {args.score_order_in_prompt}.txt")
             else:

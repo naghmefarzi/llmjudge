@@ -6,7 +6,7 @@ import torch
 from prompts import create_system_message,create_system_message_for_non_rel,create_system_message_for_rel
 import re
 import json
-
+from together_model import TogetherPipeline
 def process_batch_baseline(batch, qid_to_query, docid_to_doc,  result_file, pipeline,generative_error_file_path:Optional[str], problematic_passages_path: Optional[str], system_message: str):
 
 
@@ -477,43 +477,51 @@ def get_relevance_score_baseline(prompt: str, pipeline, system_message: str):
         pipeline.tokenizer.eos_token_id,
         pipeline.tokenizer.convert_tokens_to_ids("<|eot_id|>")
     ]
-    
-    # Check if pipeline tokenizer supports chat templates and process accordingly
-    if hasattr(pipeline.tokenizer, "apply_chat_template"):
-        if hasattr(pipeline.tokenizer, 'chat_template') and pipeline.tokenizer.chat_template is not None:
-            # Use chat template if supported and set
-            prompt = pipeline.tokenizer.apply_chat_template(
-                messages,
-                tokenize=False,
-                add_generation_prompt=True
-            )
-        else:
-            # Fallback when chat template is not set
-            if not hasattr(get_relevance_score_baseline, "warning"):
-                get_relevance_score_baseline.warning = True
-                print("Warning: Chat template not set, falling back to simple concatenation.")
-
-            prompt = f"{system_message}\n{prompt}"
-    else:
-        # Fallback for models without chat template support
-        prompt = f"{system_message}\n{prompt}"
-
-    # Generate output from the model
-    outputs = pipeline(
-        prompt,
-        max_new_tokens=100,
-        eos_token_id=terminators,
-        pad_token_id=128009,
-        do_sample=True,
-        temperature=0.1,
-        top_p=0.9,
-    )
-
-    # Return generated text without the prompt if chat template was used, otherwise return full text
-    if hasattr(pipeline.tokenizer, 'chat_template') and pipeline.tokenizer.chat_template is not None:
-        output =  outputs[0]["generated_text"][len(prompt):]
-    else:
+    if isinstance(pipeline, TogetherPipeline):
+        # Directly call Together API
+        if not hasattr(get_relevance_score_baseline, "output_from_together"):
+            get_relevance_score_baseline.output_from_together = True
+            print("output is from a model loaded on together ai")
+        outputs = pipeline(messages)
         output = outputs[0]["generated_text"]
+        
+    else:
+        # Check if pipeline tokenizer supports chat templates and process accordingly
+        if hasattr(pipeline.tokenizer, "apply_chat_template"):
+            if hasattr(pipeline.tokenizer, 'chat_template') and pipeline.tokenizer.chat_template is not None:
+                # Use chat template if supported and set
+                prompt = pipeline.tokenizer.apply_chat_template(
+                    messages,
+                    tokenize=False,
+                    add_generation_prompt=True
+                )
+            else:
+                # Fallback when chat template is not set
+                if not hasattr(get_relevance_score_baseline, "warning"):
+                    get_relevance_score_baseline.warning = True
+                    print("Warning: Chat template not set, falling back to simple concatenation.")
+
+                prompt = f"{system_message}\n{prompt}"
+        else:
+            # Fallback for models without chat template support
+            prompt = f"{system_message}\n{prompt}"
+
+        # Generate output from the model
+        outputs = pipeline(
+            prompt,
+            max_new_tokens=100,
+            eos_token_id=terminators,
+            pad_token_id=128009,
+            do_sample=True,
+            temperature=0.1,
+            top_p=0.9,
+        )
+
+        # Return generated text without the prompt if chat template was used, otherwise return full text
+        if hasattr(pipeline.tokenizer, 'chat_template') and pipeline.tokenizer.chat_template is not None:
+            output =  outputs[0]["generated_text"][len(prompt):]
+        else:
+            output = outputs[0]["generated_text"]
     if not hasattr(get_relevance_score_baseline, "print_one_output"):
         get_relevance_score_baseline.print_one_output = True
         print(f"sample output: {output}")    
