@@ -29,16 +29,16 @@ from typing import *
 
 
 
-together.api_key = os.environ["TOGETHER_API_KEY"]
-client = Together()
-response = client.chat.completions.create(
-    model = model_name,
-    messages = [
-        {"role": "system", "content": system_message},
-        {"role": "user", "content": prompt},
-    ]    
-)
-print(response.choices[0].message.content)
+# together.api_key = os.environ["TOGETHER_API_KEY"]
+# client = Together()
+# response = client.chat.completions.create(
+#     model = model_name,
+#     messages = [
+#         {"role": "system", "content": system_message},
+#         {"role": "user", "content": prompt},
+#     ]    
+# )
+# print(response.choices[0].message.content)
 
 
 
