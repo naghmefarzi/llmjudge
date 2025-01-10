@@ -272,24 +272,31 @@ output_name = None
 
 
 
-# passage_to_msmarco = make_mapping_dict("./private_data/gold_data/docid_to_docidx.txt")
-# qid_to_qidx = make_mapping_dict("./private_data/gold_data/qid_to_qidx.txt")
-# qrel_file_path = "./private_data/gold_data/llm4eval_test_qrel_2024_withRel.txt"
+passage_to_msmarco = make_mapping_dict("./private_data/gold_data/docid_to_docidx.txt")
+qid_to_qidx = make_mapping_dict("./private_data/gold_data/qid_to_qidx.txt")
+qrel_file_path = "./private_data/gold_data/llm4eval_test_qrel_2024_withRel.txt"
+input_file = "./logs/test_decomposed_relavance_qrel_llama70b.json"
+# input_file = "./logs/llmjudge_test_4prompts_qrel_flant5large.json"
+# input_file = "./logs/llmjudge_test_qrel_sun_then_decomposed_flant5large.json"
 # input_file = "./logs/test_decomposed_relavance_qrel.json"
 # input_file = "./logs/test_sun_then_decomposed_relavance_qrel.json"
 # generated_qrel_dict = make_qrel_dic("./results/test_NaiveB_on_decomposed.txt")
-# output_name = "test_sum_of_decomposed.json"
+# output_name = "test_sum_of_decomposed_flant5large.json"
 
 
-qrel_file_path = "./data/dl2019/2019qrels-pass.txt"
-input_file = "./logs/4_prompts_dl2019.json"
+# qrel_file_path = "./data/dl2019/2019qrels-pass.txt"
+# input_file = "./logs/dl2019_test_sun_then_decomposed_flant5large.json"
+# input_file = "./logs/dl2019_test_4prompts_flant5large.json"
+# input_file = "./logs/4_prompts_dl2019.json"
 # input_file = "./logs/dl2019_sun_then_decomposed_relavance_qrel.json"
-# output_name = "dl2019_sum_of_decomposed.json"
+# output_name = "dl2019_sum_of_decomposed_flant5large.json"
 
 # qrel_file_path = "./data/dl2020/2020qrels-pass.txt"
+# input_file = "./logs/dl2020_test_sun_then_decomposed_flant5large.json"
+# input_file = "./logs/dl2020_test_4prompts_flant5large.json"
 # input_file = "./logs/4_prompts_dl2020.json"
 # input_file = "./logs/dl2020_sun_then_decomposed_relavance_qrel.json"
-# output_name = "dl2020_sum_of_decomposed.json"
+# output_name = "dl2020_sum_of_decomposed_flant5large.json"
 
 # input_files = ["./logs/4_prompts_dl2019.json","./logs/4_prompts_dl2020.json", "./logs/test_sun_then_decomposed_relavance_qrel.json","./logs/test_gen_query_similarity_qrel.json","./logs/dl2019_gen_query_similarity_qrel.json","./logs/dl2019_sun_then_decomposed_relavance_qrel.json","./logs/dl2020_sun_then_decomposed_relavance_qrel.json"]
 # for input_file in input_files:
@@ -302,19 +309,23 @@ os.makedirs(output_dir, exist_ok=True)  # Create the directory if it doesn't exi
 output_full_name = f"./rubric_format_inputs/{os.path.basename(input_file).replace('.json', '.jsonl.gz')}" if output_name is None else f"./rubric_format_inputs/{os.path.basename(output_name).replace('.json', '.jsonl.gz')}"
 # Open the file to write the JSON lines in compressed text mode
 with gzip.open(output_full_name, 'wt', encoding='utf-8') as f:
+    visited = []
     for entry in data_to_write:
-        binary_rel = entry["binary_rel"] if entry["binary_rel"] else None
-        
-        json_line = generate_json_line(
-            entry["query_id"], entry["paragraph_id"], entry["text"], 
-            entry["exactness_score"], entry["topicality_score"], entry["coverage_score"],
-            entry["contextual_fit_score"], entry["relevance_label"], entry["final_relevance_label"], entry["threshold_on_sum"], entry["query_text"], 
+        if (entry["query_id"], entry["paragraph_id"]) not in visited:
+            visited.append((entry["query_id"], entry["paragraph_id"]))
             
-            entry["ground_truth_relevance_label"] 
-            # , passage_to_msmarco=passage_to_msmarco, qidtomsmarcoqids=qid_to_qidx
-            # , binary_rel=binary_rel
-            # , relevance_score_from_generated_qrel=True, generated_qrel_dict=generated_qrel_dict
-            # , sum_flag=True
+            binary_rel = entry["binary_rel"] if entry["binary_rel"] else None
             
-        )
-        f.write(json_line + '\n')  # Write each JSON line in the compressed file
+            json_line = generate_json_line(
+                entry["query_id"], entry["paragraph_id"], entry["text"], 
+                entry["exactness_score"], entry["topicality_score"], entry["coverage_score"],
+                entry["contextual_fit_score"], entry["relevance_label"], entry["final_relevance_label"], entry["threshold_on_sum"], entry["query_text"], 
+                
+                entry["ground_truth_relevance_label"] 
+                , passage_to_msmarco=passage_to_msmarco, qidtomsmarcoqids=qid_to_qidx
+                # , binary_rel=binary_rel
+                # , relevance_score_from_generated_qrel=True, generated_qrel_dict=generated_qrel_dict
+                # , sum_flag=True
+                
+            )
+            f.write(json_line + '\n')  # Write each JSON line in the compressed file
