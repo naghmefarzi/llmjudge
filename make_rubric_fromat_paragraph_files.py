@@ -2,6 +2,56 @@ import json
 import os
 import gzip
 import re
+
+def generate_json_line_direct_grading(query_id, paragraph_id, text, query_text, ground_truth_relevance_label, passage_to_msmarco=None, qidtomsmarcoqids=None, generated_qrel_dict=None):
+
+    
+    json_line = [
+        str(qidtomsmarcoqids[query_id]) if qidtomsmarcoqids else str(query_id),  # The query ID (e.g., q49)
+        [
+            {
+                "paragraph_id": str(passage_to_msmarco[paragraph_id]) if passage_to_msmarco else str(paragraph_id),  # The paragraph ID (e.g., p3659)
+                "text": text,  # The paragraph text (e.g., passage)
+                "paragraph": "",  # Empty or additional paragraph-related field (you can customize it)
+                "paragraph_data": {
+                    "judgments": [
+                        {
+                            "paragraphId": str(passage_to_msmarco[paragraph_id]) if passage_to_msmarco else str(paragraph_id),  # The paragraph ID (e.g., p3659)
+                            "query": str(qidtomsmarcoqids[query_id]) if qidtomsmarcoqids else str(query_id),
+                            "relevance": ground_truth_relevance_label,  # The relevance score
+                            "titleQuery": query_text  # The title or name for the query
+                        }
+                    ],
+                    "rankings": []  # Can be used for any rankings you might want to include
+                },"exam_grades": [
+            
+            
+            
+            
+            {
+          "correctAnswered": True,
+          "answer": str(generated_qrel_dict[(query_id, paragraph_id)]),
+          "llm": "google/flan-t5-large",
+          "llm_options": {},
+          "prompt_info": {
+            "prompt_class": "llmjudgebaseline",
+            "prompt_style": "Is this passage relevant 0,1,2,3?",
+            "context_first": False,
+            "check_unanswerable": False,
+            "check_answer_key": False,
+            "is_self_rated": True
+          },
+          "self_ratings": int(generated_qrel_dict[(query_id, paragraph_id)]),
+          "prompt_type": "direct_grading"
+        }
+                ]
+            }
+        ]
+    ]
+    return json.dumps(json_line)
+    
+    
+    
 def generate_json_line(query_id, paragraph_id, text, exactness_score, topicality_score, coverage_score, contextual_fit_score, relevance_label, final_relevance_label, threshold_on_sum, query_text, ground_truth_relevance_label, binary_rel=None, passage_to_msmarco=None, qidtomsmarcoqids=None, relevance_score_from_generated_qrel=False, generated_qrel_dict=None, sum_flag = False):
     # Define the structure of the JSON line
     json_line = [
@@ -119,6 +169,16 @@ def make_mapping_dict(doc_mapping_path):
     return passage_to_msmarco
     
 
+def make_dict(file_path):
+    dict = {}
+    with open(file_path, 'r') as f:
+        for line in f:
+            parts = line.strip().split('\t')
+            if len(parts) == 2:
+                qid, query = parts[0], parts[1]
+                passage_to_msmarco[qid] = query
+    return dict
+    
            
 def make_qrel_dic(qre_file_path):
     d = {}
@@ -269,22 +329,28 @@ def generate_data_to_write(filename,qrel_file_path):
     return entries
 
 output_name = None
+direct_grading = False
 
 
-
-passage_to_msmarco = make_mapping_dict("./private_data/gold_data/docid_to_docidx.txt")
-qid_to_qidx = make_mapping_dict("./private_data/gold_data/qid_to_qidx.txt")
-qrel_file_path = "./private_data/gold_data/llm4eval_test_qrel_2024_withRel.txt"
-input_file = "./logs/test_decomposed_relavance_qrel_llama70b.json"
+# passage_to_msmarco = make_mapping_dict("./private_data/gold_data/docid_to_docidx.txt")
+# qid_to_qidx = make_mapping_dict("./private_data/gold_data/qid_to_qidx.txt")
+# qrel_file_path = "./private_data/gold_data/llm4eval_test_qrel_2024_withRel.txt"
+# input_file = "./logs/test_decomposed_relavance_qrel_llama70b.json"
 # input_file = "./logs/llmjudge_test_4prompts_qrel_flant5large.json"
 # input_file = "./logs/llmjudge_test_qrel_sun_then_decomposed_flant5large.json"
 # input_file = "./logs/test_decomposed_relavance_qrel.json"
 # input_file = "./logs/test_sun_then_decomposed_relavance_qrel.json"
 # generated_qrel_dict = make_qrel_dic("./results/test_NaiveB_on_decomposed.txt")
-# output_name = "test_sum_of_decomposed_flant5large.json"
 
 
-# qrel_file_path = "./data/dl2019/2019qrels-pass.txt"
+# generated_qrel_dict = make_qrel_dic("./results/test_llmjudge_baseline_relavance_qrel_prompt order: 3210.txt")
+# queries_dict = make_dict("./data/llm4eval_dev_qrel_2024.txt")
+# output_name = "test_llmjudge_baseline_relavance_qrel_prompt order: 3210.json"
+
+
+qrel_file_path = "./data/dl2019/2019qrels-pass.txt"
+input_file = "./logs/dl2019_test_4prompts_llama70b.json"
+
 # input_file = "./logs/dl2019_test_sun_then_decomposed_flant5large.json"
 # input_file = "./logs/dl2019_test_4prompts_flant5large.json"
 # input_file = "./logs/4_prompts_dl2019.json"
@@ -293,10 +359,14 @@ input_file = "./logs/test_decomposed_relavance_qrel_llama70b.json"
 
 # qrel_file_path = "./data/dl2020/2020qrels-pass.txt"
 # input_file = "./logs/dl2020_test_sun_then_decomposed_flant5large.json"
+# input_file = "./logs/dl2020_test_4prompts_llama70b.json"
 # input_file = "./logs/dl2020_test_4prompts_flant5large.json"
 # input_file = "./logs/4_prompts_dl2020.json"
 # input_file = "./logs/dl2020_sun_then_decomposed_relavance_qrel.json"
 # output_name = "dl2020_sum_of_decomposed_flant5large.json"
+
+
+
 
 # input_files = ["./logs/4_prompts_dl2019.json","./logs/4_prompts_dl2020.json", "./logs/test_sun_then_decomposed_relavance_qrel.json","./logs/test_gen_query_similarity_qrel.json","./logs/dl2019_gen_query_similarity_qrel.json","./logs/dl2019_sun_then_decomposed_relavance_qrel.json","./logs/dl2020_sun_then_decomposed_relavance_qrel.json"]
 # for input_file in input_files:
@@ -308,24 +378,35 @@ os.makedirs(output_dir, exist_ok=True)  # Create the directory if it doesn't exi
 # output_name = "test_sum_of_decomposed_prompts.json"
 output_full_name = f"./rubric_format_inputs/{os.path.basename(input_file).replace('.json', '.jsonl.gz')}" if output_name is None else f"./rubric_format_inputs/{os.path.basename(output_name).replace('.json', '.jsonl.gz')}"
 # Open the file to write the JSON lines in compressed text mode
-with gzip.open(output_full_name, 'wt', encoding='utf-8') as f:
-    visited = []
-    for entry in data_to_write:
-        if (entry["query_id"], entry["paragraph_id"]) not in visited:
-            visited.append((entry["query_id"], entry["paragraph_id"]))
-            
-            binary_rel = entry["binary_rel"] if entry["binary_rel"] else None
-            
-            json_line = generate_json_line(
-                entry["query_id"], entry["paragraph_id"], entry["text"], 
-                entry["exactness_score"], entry["topicality_score"], entry["coverage_score"],
-                entry["contextual_fit_score"], entry["relevance_label"], entry["final_relevance_label"], entry["threshold_on_sum"], entry["query_text"], 
+
+
+# if direct_grading:
+#     with gzip.open(output_full_name, 'wt', encoding='utf-8') as f:
+#         for tuple_qid_pid in generated_qrel_dict:
+#             json_line = generate_json_line_direct_grading(tuple_qid_pid[0], tuple_qid_pid[1], entry["text"],  queries_dict[], entry["ground_truth_relevance_label"] 
+#             , passage_to_msmarco=passage_to_msmarco, qidtomsmarcoqids=qid_to_qidx
+#             ,  generated_qrel_dict=generated_qrel_dict)
+#         f.write(json_line + '\n')  # Write each JSON line in the compressed file
+
+if not direct_grading:            
+    with gzip.open(output_full_name, 'wt', encoding='utf-8') as f:
+        visited = []
+        for entry in data_to_write:
+            if (entry["query_id"], entry["paragraph_id"]) not in visited:
+                visited.append((entry["query_id"], entry["paragraph_id"]))
                 
-                entry["ground_truth_relevance_label"] 
-                , passage_to_msmarco=passage_to_msmarco, qidtomsmarcoqids=qid_to_qidx
-                # , binary_rel=binary_rel
-                # , relevance_score_from_generated_qrel=True, generated_qrel_dict=generated_qrel_dict
-                # , sum_flag=True
+                binary_rel = entry["binary_rel"] if entry["binary_rel"] else None
                 
-            )
-            f.write(json_line + '\n')  # Write each JSON line in the compressed file
+                json_line = generate_json_line(
+                    entry["query_id"], entry["paragraph_id"], entry["text"], 
+                    entry["exactness_score"], entry["topicality_score"], entry["coverage_score"],
+                    entry["contextual_fit_score"], entry["relevance_label"], entry["final_relevance_label"], entry["threshold_on_sum"], entry["query_text"], 
+                    
+                    entry["ground_truth_relevance_label"] 
+                    # , passage_to_msmarco=passage_to_msmarco, qidtomsmarcoqids=qid_to_qidx
+                    # , binary_rel=binary_rel
+                    # , relevance_score_from_generated_qrel=True, generated_qrel_dict=generated_qrel_dict
+                    # , sum_flag=True
+                    
+                )
+                f.write(json_line + '\n')  # Write each JSON line in the compressed file
