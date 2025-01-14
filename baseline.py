@@ -47,7 +47,23 @@ def process_test_qrel_baseline_only_qrel(test_qrel, docid_to_doc, qid_to_query, 
             docidx = eachline.docid
             
             # Generate prompt
-            prompt = get_prompt(query=qid_to_query[qidx], passage=docid_to_doc[docidx], pipeline=pipeline)
+            # prompt = get_prompt(query=qid_to_query[qidx], passage=docid_to_doc[docidx], pipeline=pipeline)
+            # Possible type conversions for qidx and docidx
+            type_combinations = [(int, int), (str, int), (int, str), (str, str)]
+
+            for q_type, d_type in type_combinations:
+                try:
+                    prompt = get_prompt(
+                        query=qid_to_query[q_type(qidx)],
+                        passage=docid_to_doc[d_type(docidx)],
+                        pipeline=pipeline
+                    )
+                    break  # Exit the loop if successful
+                except (KeyError, ValueError, TypeError):
+                    continue
+            else:
+                raise ValueError("Unable to generate prompt with any combination of qid/docid types.")
+                
             
             try:
                 # Get relevance score

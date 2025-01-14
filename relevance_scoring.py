@@ -367,97 +367,80 @@ def get_relevance_score_decomposed_prompts(query,passage,pipeline,log_file_path,
 
 
  
+
+
  
- 
+def five_prompt(query,passage,pipeline,log_file_path,system_message,qidx,docidx,baseline_prompt=None,baseline_system_message=None):
+    # baseline_relevance = get_relevance_score_baseline(baseline_prompt,pipeline,baseline_system_message)
+    decomposed_scores_dict = {}
+    # Define the initial prompt
+    system_message_decomposition = """Please assess how well the provided passage meets specific criteria in relation to the query. Use the following scoring scale (0-3) for evaluation:
 
-# def get_relevance_score_baseline(prompt: str,pipeline,system_message:str):
-#   messages = [
-#       {"role": "system", "content": system_message},
-#       {"role": "user", "content": prompt},
-#   ]
-  
-  
-#   # Check if the function has been called before
-#   if not hasattr(get_relevance_score_baseline, "called"):
-#   # Set the attribute to indicate the function has been called
-#     get_relevance_score_baseline.called = True
-#     print(messages)
+0: Not relevant at all / No information provided.
+1: Marginally relevant / Partially addresses the criterion.
+2: Fairly relevant / Adequately addresses the criterion.
+3: Highly relevant / Fully satisfies the criterion."""
 
-#   prompt = pipeline.tokenizer.apply_chat_template(
-#           messages,
-#           tokenize=False,
-#           add_generation_prompt=True
-#   )
-
-#   terminators = [
-#       pipeline.tokenizer.eos_token_id,
-#       pipeline.tokenizer.convert_tokens_to_ids("<|eot_id|>")
-#   ]
-
-#   outputs = pipeline(
-#       prompt,
-#       max_new_tokens=100,
-#       eos_token_id=terminators,
-#       pad_token_id=128009,
-#       do_sample=True,
-#       temperature=0.1,
-#       top_p=0.9,
-#   )
-
-#   return outputs[0]["generated_text"][len(prompt):]
-
-
-# def get_relevance_score_baseline(prompt: str, pipeline, system_message: str):
-#     # Prepare messages for chat template
-#     messages = [
-#         {"role": "system", "content": system_message},
-#         {"role": "user", "content": prompt},
-#     ]
-    
-#     # Check if the function has been called before
-#     if not hasattr(get_relevance_score_baseline, "called"):
-#         # Set the attribute to indicate the function has been called
-#         get_relevance_score_baseline.called = True
-#         print(messages)
-
-#     # Check if pipeline tokenizer supports chat templates
-#     if hasattr(pipeline.tokenizer, "apply_chat_template"):
-#         # Check if the chat_template is set
-#         if hasattr(pipeline.tokenizer, 'chat_template') and pipeline.tokenizer.chat_template is not None:
-#             # Use apply_chat_template if supported and template is set
-#             prompt = pipeline.tokenizer.apply_chat_template(
-#                 messages,
-#                 tokenize=False,
-#                 add_generation_prompt=True
-#             )
+    # Define the hierarchical order of prompts
+    decomposed_criterias = {
+        "Exactness":" How precisely does the passage answer the query.",
+        "Topicality": "Is the passage about the same subject as the whole query (not only a single word of it).",
+        "Depth": "How much detail does the passage provide about the topic",
+        "Coverage": "How much of the passage is dedicated to discussing the query and its related topics.",
+        "Contextual Fit": "Does the passage provide relevant background or context.",
+    }
+    prompt = f'''Query: {query}\nPassage: {passage}\n'''
+    prompt_ = prompt
+    for i in range(len(decomposed_criterias)):
+        criteria = list(decomposed_criterias.keys())[i]
+        criteria_definition = list(decomposed_criterias.values())[i]
+        criteria_prompt = f'''Please rate how well the given passage meets the {criteria} criterion in relation to the query. The output should be a single score (0-3) indicating {criteria_definition}.'''
+        to_ask_prompt = criteria_prompt + prompt+'''\nScore:'''
             
-#         else:
-#             # If chat_template is not set, fall back to concatenating system_message and prompt
-#             print("Warning: Chat template not set, falling back to simple concatenation.")
-#             prompt = f"{system_message}\n{prompt}"
-#     else:
-#         # Fallback for models without chat template support like flan t5 large
-#         prompt = f"{system_message}\n{prompt}"
+        score = get_relevance_score_baseline(to_ask_prompt,pipeline,system_message_decomposition)
+        num_score = find_first_number(score)
+        prompt_+=f"\n{list(decomposed_criterias.keys())[i]}: {num_score}"
+        decomposed_scores_dict[list(decomposed_criterias.keys())[i]]=num_score
+        if not hasattr(get_relevance_score_decomposed_prompts,"called"):
+            # get_relevance_score_iterative_prompts.called =True
+            print(system_message_decomposition)
+            print(to_ask_prompt)
+            print(score)
+    inf = {"qidx":qidx,
+                   "docidx":docidx,
+                   "query": query,
+                   "passage": passage,
+                   "decomposed_scores_dict":decomposed_scores_dict,
+                   "prompt":prompt_,
+                   
+            
+        }
+    
+    prompt_ += f"relevance score"        
+    criteria_prompt = '''Please rate how the given passage is relevant to the query based on the given scores. The output must be only a score that indicates how relevant they are.\n'''
+    to_ask_prompt = criteria_prompt + prompt_ + '''\nScore:'''
+    score = get_relevance_score_baseline(to_ask_prompt, pipeline, system_message)
+    num_score = find_first_number(score)
+    if not hasattr(get_relevance_score_decomposed_prompts,"called"):
+            get_relevance_score_decomposed_prompts.called =True
+            print("******")
+            print(system_message)
+            print(to_ask_prompt)
+            print(score)
+            print("*"*20)
+            print(num_score)
+    inf['relevance_prompt']=to_ask_prompt
+    inf['llm_response'] = score
+    inf['final_relevance_score'] = num_score
+    with open(log_file_path,"a") as f:
+        json.dump(inf, f)
+    return num_score , decomposed_scores_dict
+        
 
-#     # Define terminators
-#     terminators = [
-#         pipeline.tokenizer.eos_token_id,
-#         pipeline.tokenizer.convert_tokens_to_ids("<|eot_id|>")
-#     ]
 
-#     # Generate output from the model
-#     outputs = pipeline(
-#         prompt,
-#         max_new_tokens=100,
-#         eos_token_id=terminators,
-#         pad_token_id=128009,
-#         do_sample=True,
-#         temperature=0.1,
-#         top_p=0.9,
-#     )
+ 
 
-#     # Return generated text without the prompt
-#     return outputs[0]["generated_text"][len(prompt):]
+
 
 
 def get_relevance_score_baseline(prompt: str, pipeline, system_message: str):
